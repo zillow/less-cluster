@@ -1,0 +1,34 @@
+{
+  "name": "zless",
+  "version": "0.1.0",
+  "description": "Parallel, directory-based execution of lessc.",
+  "main": "lib/zless.js",
+  "bin": {
+    "zless": "./bin/cli.js"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/nodeunit ./test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@stash.zillow.local:7999/TOOL/zless.git"
+  },
+  "keywords": [
+    "less",
+    "css",
+    "compiler",
+    "cluster"
+  ],
+  "author": "Daniel Stockman <daniels@zillow.com>",
+  "license": "MIT",
+  "gitHead": "41f8f8b803cedb7d784a8bee87875a2884b83e6a",
+  "private": true,
+  "devDependencies": {
+    "nodeunit": "~0.7.4"
+  },
+  "dependencies": {
+    "nopt": "~2.1.1",
+    "glob": "~3.1.17",
+    "less": "~1.3.3"
+  }
+}
