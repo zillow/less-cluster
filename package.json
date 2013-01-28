@@ -1,21 +1,22 @@
 {
-  "name": "zless",
+  "name": "less-cluster",
   "version": "0.1.0",
   "description": "Parallel, directory-based execution of lessc.",
-  "main": "lib/zless.js",
+  "main": "lib/less-cluster.js",
   "bin": {
-    "zless": "./bin/cli.js"
+    "less-cluster": "./bin/less-cluster"
   },
   "scripts": {
     "test": "./node_modules/.bin/nodeunit ./test"
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@stash.zillow.local:7999/TOOL/zless.git"
+    "url": "ssh://git@stash.zillow.local:7999/TOOL/less-cluster.git"
   },
   "keywords": [
     "less",
     "css",
+    "lesscss",
     "compiler",
     "cluster"
   ],

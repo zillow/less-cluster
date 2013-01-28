@@ -1,7 +1,7 @@
 /**
 Tests for the main class
 **/
-var zless = require('../lib/zless');
+var LessCluster = require('../lib/less-cluster');
 
 module.exports = {
     setUp: function (cb) {

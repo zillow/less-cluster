@@ -1,7 +1,7 @@
 /**
 Tests for the cli arguments
 **/
-var args = require('../lib/args');
+var cli = require('../lib/cli');
 
 module.exports = {
     setUp: function (cb) {
