@@ -4,15 +4,36 @@ Tests for the main class
 var LessCluster = require('../lib/less-cluster');
 
 module.exports = {
-    setUp: function (cb) {
-        cb();
-    },
-    tearDown: function (cb) {
-        cb();
+    "lifecycle": {
+        "instantiate": function (test) {
+            console.error('TODO');
+            test.done();
+        },
+        "factory": function (test) {
+            console.error('TODO');
+            test.done();
+        }
     },
 
-    "should write tests": function (test) {
-        test.ok(false, "Really should write them.");
-        test.done();
+    "master": {
+        "config": function (test) {
+            console.error('TODO');
+            test.done();
+        },
+        "spawns": function (test) {
+            console.error('TODO');
+            test.done();
+        }
+    },
+
+    "worker": {
+        "config": function (test) {
+            console.error('TODO');
+            test.done();
+        },
+        "executes": function (test) {
+            console.error('TODO');
+            test.done();
+        }
     }
 };

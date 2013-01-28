@@ -7,6 +7,14 @@ var shortHands = cli.shortHands;
 
 module.exports = {
     "options": {
+        "srcdir": function (test) {
+            console.error('TODO');
+            test.done();
+        },
+        "outdir": function (test) {
+            console.error('TODO');
+            test.done();
+        },
         "help": function (test) {
             test.ok(knownOpts.hasOwnProperty('help'), "--help option should be provided.");
             test.ok(knownOpts.help === Boolean, "--help should be Boolean.");
@@ -23,6 +31,17 @@ module.exports = {
             test.ok(shortHands.hasOwnProperty('v'), "-v alias should be provided.");
             test.ok(shortHands.v[0] === '--version', "-v should alias --version.");
 
+            test.done();
+        }
+    },
+
+    "parsing": {
+        "srcdir": function (test) {
+            console.error('TODO');
+            test.done();
+        },
+        "outdir": function (test) {
+            console.error('TODO');
             test.done();
         }
     },
