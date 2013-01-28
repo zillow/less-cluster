@@ -1,12 +1,18 @@
 #!/usr/bin/env node
 
 var cli = require('../lib/cli');
-var LessCluster = require('../lib/less-cluster');
 var options = cli.parse(process.argv);
 
 if (options) {
     options.cli = true;
-    LessCluster(options);
+
+    if (options.help) {
+        cli.usage();
+    } else if (options.version) {
+        cli.version();
+    } else {
+        require('../lib/less-cluster')(options);
+    }
 } else {
     cli.usage();
 }
