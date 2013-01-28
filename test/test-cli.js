@@ -8,11 +8,11 @@ var shortHands = cli.shortHands;
 module.exports = {
     "options": {
         "srcdir": function (test) {
-            console.error('TODO');
+            test.fail('TODO');
             test.done();
         },
         "outdir": function (test) {
-            console.error('TODO');
+            test.fail('TODO');
             test.done();
         },
         "help": function (test) {
@@ -37,11 +37,11 @@ module.exports = {
 
     "parsing": {
         "srcdir": function (test) {
-            console.error('TODO');
+            test.fail('TODO');
             test.done();
         },
         "outdir": function (test) {
-            console.error('TODO');
+            test.fail('TODO');
             test.done();
         }
     },
