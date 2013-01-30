@@ -3,7 +3,8 @@
 var cli = require('../lib/cli');
 var options = cli.parse(process.argv);
 
-if (options) {
+// ensure arguments are passed, otherwise echo usage
+if (options && options.argv.original.length) {
     options.cli = true;
 
     if (options.help) {
