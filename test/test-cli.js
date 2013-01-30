@@ -1,18 +1,32 @@
 /**
 Tests for the cli arguments
 **/
+var path = require('path');
+
 var cli = require('../lib/cli');
 var knownOpts = cli.knownOpts;
 var shortHands = cli.shortHands;
 
+var rootDir = 'fixtures/cli/';
+
 module.exports = {
     "options": {
-        "srcdir": function (test) {
-            test.fail('TODO');
+        "directory": function (test) {
+            test.ok(knownOpts.hasOwnProperty('directory'), "--directory option should be provided.");
+            test.ok(knownOpts.directory === path, "--directory should be path.");
+
+            test.ok(shortHands.hasOwnProperty('d'), "-d alias should be provided.");
+            test.ok(shortHands.d[0] === '--directory', "-d should alias --directory.");
+
             test.done();
         },
-        "outdir": function (test) {
-            test.fail('TODO');
+        "outputdir": function (test) {
+            test.ok(knownOpts.hasOwnProperty('outputdir'), "--outputdir option should be provided.");
+            test.ok(knownOpts.outputdir === path, "--outputdir should be path.");
+
+            test.ok(shortHands.hasOwnProperty('o'), "-o alias should be provided.");
+            test.ok(shortHands.o[0] === '--outputdir', "-o should alias --outputdir.");
+
             test.done();
         },
         "help": function (test) {
@@ -36,12 +50,20 @@ module.exports = {
     },
 
     "parsing": {
-        "srcdir": function (test) {
-            test.fail('TODO');
+        "directory": function (test) {
+            var opts = cli.parse(['node', 'less-cluster', '-d', rootDir]);
+
+            // nopt resolves 'path' types to process.cwd()
+            test.strictEqual(opts.directory, path.resolve(rootDir));
+
             test.done();
         },
-        "outdir": function (test) {
-            test.fail('TODO');
+        "outputdir": function (test) {
+            var opts = cli.parse(['node', 'less-cluster', '-o', rootDir]);
+
+            // nopt resolves 'path' types to process.cwd()
+            test.strictEqual(opts.outputdir, path.resolve(rootDir));
+
             test.done();
         }
     },
