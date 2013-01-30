@@ -72,13 +72,6 @@ module.exports = {
                 test.done();
             };
 
-            // this will not invoke collect()
-            instance.run();
-
-            // because collect() is only called
-            // when a directory has been configured
-            instance.options.directory = '.';
-
             // this will end the test
             instance.run();
         },
