@@ -36,31 +36,22 @@ module.exports = {
             test.strictEqual(instance.options.workers, require('os').cpus().length);
 
             test.done();
-        }
-    },
-/*
-    "master": {
-        "config": function (test) {
-            test.fail('TODO');
-            test.done();
         },
-        "spawns": function (test) {
-            test.fail('TODO');
+        "instance should setup private caches": function (test) {
+            var instance = new LessCluster();
+
+            test.ok(instance.hasOwnProperty('_parents'));
+            test.ok(instance.hasOwnProperty('_children'));
+            test.ok(instance.hasOwnProperty('_fileData'));
+
+            test.deepEqual(instance._parents, {});
+            test.deepEqual(instance._children, {});
+            test.deepEqual(instance._fileData, {});
+
             test.done();
         }
     },
 
-    "worker": {
-        "config": function (test) {
-            test.fail('TODO');
-            test.done();
-        },
-        "executes": function (test) {
-            test.fail('TODO');
-            test.done();
-        }
-    },
-*/
     "methods": {
         "run": function (test) {
             test.expect(1);
@@ -72,7 +63,6 @@ module.exports = {
                 test.done();
             };
 
-            // this will end the test
             instance.run();
         },
         "_getRelativePath": function (test) {
@@ -87,6 +77,30 @@ module.exports = {
 
             test.strictEqual(instance._getGlobPattern('foo'), 'foo/' + instance.options.match);
 
+            test.done();
+        },
+        "_getLessExtension": function (test) {
+            var instance = new LessCluster();
+
+            test.strictEqual(instance._getLessExtension('foo/bar.less'), 'foo/bar.less');
+            test.strictEqual(instance._getLessExtension('baz/qux'), 'baz/qux.less');
+
+            test.done();
+        },
+        "_filterCSSImports": function (test) {
+            var instance = new LessCluster();
+
+            test.strictEqual(instance._filterCSSImports('foo/bar.less'), true);
+            test.strictEqual(instance._filterCSSImports('baz/qux.css'), false);
+
+            test.done();
+        },
+        "_parseImports": function (test) {
+            console.error("TODO");
+            test.done();
+        },
+        "_finishCollect": function (test) {
+            console.error("TODO");
             test.done();
         },
         "collect": function (test) {
