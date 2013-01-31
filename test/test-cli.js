@@ -76,6 +76,14 @@ module.exports = {
 
             test.done();
         },
+        "parse() should accept optional slice index": function (test) {
+            var parsedDefaultIndex = cli.parse(['node', 'less-cluster', 'foo']);
+            var parsedCustomIndex  = cli.parse(['foo'], 0);
+
+            test.deepEqual(parsedDefaultIndex, parsedCustomIndex);
+
+            test.done();
+        },
         "version()": function (test) {
             var pack = require('../package.json');
 
