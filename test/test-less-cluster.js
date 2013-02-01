@@ -50,6 +50,15 @@ module.exports = {
             test.deepEqual(instance._fileData, {});
 
             test.done();
+        },
+        "destroy() should call _detachEvents": function (test) {
+            var instance = new LessCluster();
+
+            instance._detachEvents = function () {
+                test.done();
+            };
+
+            instance.destroy();
         }
     },
 
@@ -89,6 +98,7 @@ module.exports = {
 
         instance.forkWorkers(function (err) {
             test.ifError(err);
+            instance.destroy();
             test.done();
         });
     },
@@ -102,6 +112,7 @@ module.exports = {
             done();
         },
         "tearDown": function (done) {
+            this.instance.destroy();
             this.instance = null;
             done();
         },
@@ -128,6 +139,13 @@ module.exports = {
             this.instance.collect = test.done;
 
             this.instance.run();
+        },
+        "_attachEvents() should fire after cluster.setupMaster()": function (test) {
+            this.instance._attachEvents = function () {
+                test.done();
+            };
+
+            this.instance.setupMaster();
         }
     },
 
@@ -137,6 +155,7 @@ module.exports = {
             done();
         },
         "tearDown": function (done) {
+            this.instance.destroy();
             this.instance = null;
             done();
         },
