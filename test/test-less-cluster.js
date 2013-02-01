@@ -52,6 +52,23 @@ module.exports = {
         }
     },
 
+    "checkArguments": {
+        "should default options.directory to CWD": function (test) {
+            var options = LessCluster.checkArguments({});
+
+            test.strictEqual(options.directory, process.cwd());
+
+            test.done();
+        },
+        "should default options.outputdir to options.directory": function (test) {
+            var options = LessCluster.checkArguments({});
+
+            test.strictEqual(options.outputdir, options.directory);
+
+            test.done();
+        }
+    },
+
     "methods": {
         "setUp": function (done) {
             this.instance = new LessCluster();
@@ -62,49 +79,49 @@ module.exports = {
             done();
         },
 
-        "run": function (test) {
+        "run() should call collect() without arguments": function (test) {
             test.expect(1);
 
             this.instance.collect = function () {
-                test.strictEqual(this.options.directory, '.');
+                test.strictEqual(arguments.length, 0);
                 test.done();
             };
 
             this.instance.run();
         },
-        "_getRelativePath": function (test) {
+        "_getRelativePath()": function (test) {
             test.strictEqual(this.instance._getRelativePath(__dirname + '/fixtures'), 'test/fixtures');
 
             test.done();
         },
-        "_getGlobPattern": function (test) {
+        "_getGlobPattern()": function (test) {
             test.strictEqual(this.instance._getGlobPattern('foo'), 'foo/' + this.instance.options.match);
 
             test.done();
         },
-        "_getLessExtension": function (test) {
+        "_getLessExtension()": function (test) {
             test.strictEqual(this.instance._getLessExtension('foo/bar.less'), 'foo/bar.less');
             test.strictEqual(this.instance._getLessExtension('baz/qux'), 'baz/qux.less');
 
             test.done();
         },
-        "_filterCSSImports": function (test) {
+        "_filterCSSImports()": function (test) {
             test.strictEqual(this.instance._filterCSSImports('foo/bar.less'), true);
             test.strictEqual(this.instance._filterCSSImports('baz/qux.css'), false);
 
             test.done();
         },
-        "_parseImports": function (test) {
+        "_parseImports()": function (test) {
             console.error("TODO");
 
             test.done();
         },
-        "_finishCollect": function (test) {
+        "_finishCollect()": function (test) {
             console.error("TODO");
 
             test.done();
         },
-        "collect": function (test) {
+        "collect()": function (test) {
             console.error("TODO");
 
             test.done();
