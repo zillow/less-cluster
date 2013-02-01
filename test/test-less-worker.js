@@ -48,12 +48,34 @@ module.exports = {
         },
 
         "_applyConfig()": function (test) {
+            // missing options object
+            this.instance._applyConfig();
+            test.deepEqual(this.instance.options, {});
+
+            // arbitrary options passed through
             this.instance._applyConfig({
                 'foo': 'bar'
             });
-
             test.deepEqual(this.instance.options, {
                 'foo': 'bar'
+            });
+
+            // subsequent applications merge into existing
+            this.instance._applyConfig({
+                'baz': 'qux'
+            });
+            test.deepEqual(this.instance.options, {
+                'foo': 'bar',
+                'baz': 'qux'
+            });
+
+            // and later keys overwrite previous values
+            this.instance._applyConfig({
+                'foo': 'poopypants'
+            });
+            test.deepEqual(this.instance.options, {
+                'foo': 'poopypants',
+                'baz': 'qux'
             });
 
             test.done();
