@@ -2,6 +2,7 @@
 Tests for the main class
 **/
 var LessCluster = require('../lib/less-cluster');
+var path = require('path');
 
 module.exports = {
     "lifecycle": {
@@ -79,7 +80,58 @@ module.exports = {
         }
     },
 
-    "methods": {
+    "forkWorkers() should execute provided callback": function (test) {
+        test.expect(1);
+
+        var instance = new LessCluster({
+            workers: 0
+        });
+
+        instance.forkWorkers(function (err) {
+            test.ifError(err);
+            test.done();
+        });
+    },
+
+    "run()": {
+        "setUp": function (done) {
+            this.instance = new LessCluster({
+                // prevent workers from actually being spawned
+                workers: 0
+            });
+            done();
+        },
+        "tearDown": function (done) {
+            this.instance = null;
+            done();
+        },
+
+        "should call collect() without arguments": function (test) {
+            test.expect(1);
+
+            this.instance.setupMaster = function () {};
+            this.instance.collect = function () {
+                test.strictEqual(arguments.length, 0);
+                test.done();
+            };
+
+            this.instance.run();
+        },
+        "should call setupMaster() with exec path": function (test) {
+            test.expect(1);
+
+            this.instance.setupMaster = function (options) {
+                test.deepEqual(options, {
+                    exec: path.resolve(__dirname, '../lib/less-worker.js')
+                });
+            };
+            this.instance.collect = test.done;
+
+            this.instance.run();
+        }
+    },
+
+    "collect()": {
         "setUp": function (done) {
             this.instance = new LessCluster();
             done();
@@ -89,16 +141,6 @@ module.exports = {
             done();
         },
 
-        "run() should call collect() without arguments": function (test) {
-            test.expect(1);
-
-            this.instance.collect = function () {
-                test.strictEqual(arguments.length, 0);
-                test.done();
-            };
-
-            this.instance.run();
-        },
         "_getRelativePath()": function (test) {
             test.strictEqual(this.instance._getRelativePath(__dirname + '/fixtures'), 'test/fixtures');
 
