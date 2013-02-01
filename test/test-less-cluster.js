@@ -53,6 +53,16 @@ module.exports = {
     },
 
     "checkArguments": {
+        "should allow missing config parameter": function (test) {
+            test.expect(2);
+
+            test.doesNotThrow(function () {
+                var options = LessCluster.checkArguments();
+                test.ok("object" === typeof options);
+            });
+
+            test.done();
+        },
         "should default options.directory to CWD": function (test) {
             var options = LessCluster.checkArguments({});
 
