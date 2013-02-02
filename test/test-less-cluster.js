@@ -55,6 +55,17 @@ module.exports = {
             var instance = new LessCluster();
 
             instance._detachEvents = function () {
+                test.ok(true);
+                test.done();
+            };
+
+            instance.destroy();
+        },
+        "destroy() should call _resetPool": function (test) {
+            var instance = new LessCluster();
+
+            instance._resetPool = function () {
+                test.ok(true);
                 test.done();
             };
 
@@ -103,6 +114,70 @@ module.exports = {
         });
     },
 
+    "pool": {
+        "setUp": function (done) {
+            this.instance = new LessCluster();
+            done();
+        },
+        "tearDown": function (done) {
+            this.instance.destroy();
+            this.instance = null;
+            done();
+        },
+
+        "should start with an empty pool": function (test) {
+            test.ok(this.instance.hasOwnProperty('_pool'));
+            test.ok(Array.isArray(this.instance._pool));
+            test.ok(this.instance._pool.length === 0);
+
+            test.done();
+        },
+        "should add to pool": function (test) {
+            this.instance._poolAdd(1);
+
+            test.strictEqual(this.instance._pool.length, 1);
+            test.strictEqual(this.instance._pool[0], 1);
+
+            test.done();
+        },
+        "should retrieve next member of pool": function (test) {
+            this.instance._poolAdd(1);
+
+            test.strictEqual(this.instance._poolNext(), 1);
+
+            test.done();
+        },
+        "should return undefined when no members in pool": function (test) {
+            test.strictEqual(this.instance._poolNext(), undefined);
+
+            test.done();
+        },
+        "should remove member from pool": function (test) {
+            this.instance._poolAdd(1);
+            this.instance._poolAdd(2);
+
+            this.instance._poolRemove(1);
+
+            test.strictEqual(this.instance._pool.length, 1);
+            test.strictEqual(this.instance._pool[0], 2);
+
+            test.done();
+        },
+        "should reset pool": function (test) {
+            this.instance._poolAdd(1);
+            this.instance._poolAdd(2);
+            this.instance._poolAdd(3);
+
+            test.strictEqual(this.instance._pool.length, 3);
+
+            this.instance._resetPool();
+
+            test.strictEqual(this.instance._pool.length, 0);
+
+            test.done();
+        }
+    },
+
     "run()": {
         "setUp": function (done) {
             this.instance = new LessCluster({
@@ -142,6 +217,7 @@ module.exports = {
         },
         "_attachEvents() should fire after cluster.setupMaster()": function (test) {
             this.instance._attachEvents = function () {
+                test.ok(true);
                 test.done();
             };
 
