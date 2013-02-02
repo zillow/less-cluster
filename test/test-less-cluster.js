@@ -1,6 +1,7 @@
 /**
 Tests for the main class
 **/
+var EventEmitter = require('events').EventEmitter;
 var LessCluster = require('../lib/less-cluster');
 var path = require('path');
 
@@ -16,6 +17,18 @@ module.exports = {
             var instance = LessCluster();
             test.ok(instance instanceof LessCluster);
             test.done();
+        },
+        "should inherit EventEmitter": function (test) {
+            var instance = new LessCluster();
+
+            test.ok(LessCluster.super_ === EventEmitter);
+            test.ok(instance instanceof EventEmitter);
+
+            instance.on('foo', function (bar) {
+                test.strictEqual(bar, 'bar');
+                test.done();
+            });
+            instance.emit('foo', 'bar');
         },
         "should possess static default options": function (test) {
             var options = LessCluster.defaults;
