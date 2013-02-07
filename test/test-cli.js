@@ -58,6 +58,14 @@ module.exports = {
 
             test.done();
         },
+        "directory (implicit)": function (test) {
+            var opts = cli.parse(['node', 'less-cluster', rootDir]);
+
+            // nopt resolves 'path' types to process.cwd()
+            test.strictEqual(opts.directory, path.resolve(rootDir));
+
+            test.done();
+        },
         "outputdir": function (test) {
             var opts = cli.parse(['node', 'less-cluster', '-o', rootDir]);
 
