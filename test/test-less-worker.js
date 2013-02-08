@@ -98,7 +98,56 @@ module.exports = {
                 test.done();
             });
         },
-        "dispatchMessage()": function (test) {
+        "dispatchMessage() should receive message object with command": function (test) {
+            test.expect(2);
+
+            var instance = this.instance;
+
+            test.throws(function () {
+                instance.dispatchMessage();
+            }, "Message must have command");
+
+            test.throws(function () {
+                instance.dispatchMessage({
+                    foo: 'foo'
+                });
+            }, "Message must have command");
+
+            test.done();
+        },
+        "dispatchMessage() should distinguish invalid commands": function (test) {
+            test.expect(1);
+
+            var instance = this.instance;
+
+            test.throws(function () {
+                instance.dispatchMessage({
+                    cmd: 'missing'
+                });
+            }, "Message command invalid");
+
+            test.done();
+        },
+        "dispatchMessage() should execute valid commands": function (test) {
+            test.expect(1);
+
+            var instance = this.instance;
+
+            instance.build = function (msg) {
+                test.deepEqual(msg, {
+                    cmd: 'build'
+                });
+
+                test.done();
+            };
+
+            test.doesNotThrow(function () {
+                instance.dispatchMessage({
+                    cmd: 'build'
+                });
+            });
+        },
+        "build()": function (test) {
             console.error("TODO");
             test.done();
         }
