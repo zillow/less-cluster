@@ -175,6 +175,15 @@ module.exports = {
             done();
         },
 
+        "_getDestinationPath()": function (test) {
+            test.strictEqual(
+                this.instance._getDestinationPath(__dirname + '/fixtures/file-reader/a.less'),
+                __dirname + '/fixtures/file-reader/a.css'
+            );
+
+            test.done();
+        },
+
         "_getRelativePath()": function (test) {
             test.strictEqual(this.instance._getRelativePath(__dirname + '/fixtures'), 'test/fixtures');
 
