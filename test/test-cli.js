@@ -130,7 +130,7 @@ module.exports = {
             test.deepEqual(knownOpts.paths, [path, Array], "--paths should be an array of paths.");
 
             test.ok(shortHands.hasOwnProperty('I'), "-I alias should be provided.");
-            test.strictEqual(shortHands.I[0], '--include-path', "-I should alias --include-path.");
+            test.strictEqual(shortHands.I[0], '--paths', "-I should alias --paths.");
 
             // dash-case to camelCase
             test.ok(shortHands.hasOwnProperty('include-path'), "--include-path alias should be provided.");
@@ -161,7 +161,7 @@ module.exports = {
             test.strictEqual(knownOpts.relativeUrls, Boolean, "--relativeUrls should be Boolean.");
 
             test.ok(shortHands.hasOwnProperty('ru'), "-ru alias should be provided.");
-            test.strictEqual(shortHands.ru[0], '--relative-urls', "-ru should alias --relative-urls.");
+            test.strictEqual(shortHands.ru[0], '--relativeUrls', "-ru should alias --relativeUrls.");
 
             // dash-case to camelCase
             test.ok(shortHands.hasOwnProperty('relative-urls'), "--relative-urls alias should be provided.");
@@ -236,7 +236,7 @@ module.exports = {
             test.strictEqual(knownOpts.strictMaths, Boolean, "--strictMaths should be Boolean.");
 
             test.ok(shortHands.hasOwnProperty('sm'), "-sm alias should be provided.");
-            test.strictEqual(shortHands.sm[0], '--strict-maths', "-sm should alias --strict-maths.");
+            test.strictEqual(shortHands.sm[0], '--strictMaths', "-sm should alias --strictMaths.");
 
             // dash-case to camelCase
             test.ok(shortHands.hasOwnProperty('strict-maths'), "--strict-maths alias should be provided.");
@@ -249,7 +249,7 @@ module.exports = {
             test.strictEqual(knownOpts.strictUnits, Boolean, "--strictUnits should be Boolean.");
 
             test.ok(shortHands.hasOwnProperty('su'), "-su alias should be provided.");
-            test.strictEqual(shortHands.su[0], '--strict-units', "-su should alias --strict-units.");
+            test.strictEqual(shortHands.su[0], '--strictUnits', "-su should alias --strictUnits.");
 
             // dash-case to camelCase
             test.ok(shortHands.hasOwnProperty('strict-units'), "--strict-units alias should be provided.");
