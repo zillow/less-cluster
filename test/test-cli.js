@@ -319,7 +319,7 @@ module.exports = {
             var opts = cli.parse(['node', 'less-cluster', rootDir]);
 
             // nopt resolves 'path' types to process.cwd()
-            test.strictEqual(opts.directory, path.resolve(rootDir));
+            test.strictEqual(opts.directory, path.resolve(rootDir), "A single remaining argument should be interpreted as 'directory'");
 
             test.done();
         },
