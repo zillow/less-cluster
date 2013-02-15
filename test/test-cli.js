@@ -10,7 +10,31 @@ var shortHands = cli.shortHands;
 var rootDir = 'fixtures/cli/';
 
 module.exports = {
-    "options": {
+    "master options": {
+        "default properties": function (test) {
+            var masterDefaults = cli.masterDefaults;
+
+            test.ok(masterDefaults.hasOwnProperty('directory'), "should have 'directory' property.");
+            test.ok(masterDefaults.hasOwnProperty('match'), "should have 'match' property.");
+            test.ok(masterDefaults.hasOwnProperty('ignores'), "should have 'ignores' property.");
+            test.ok(masterDefaults.hasOwnProperty('workers'), "should have 'workers' property.");
+
+            test.equal(Object.keys(masterDefaults).length, 4, "should not have unexpected properties.");
+
+            test.done();
+        },
+        "default values": function (test) {
+            test.strictEqual(cli.MAX_WORKERS, 8, "MAX_WORKERS should be 8.");
+
+            test.deepEqual(cli.masterDefaults, {
+                directory   : process.cwd(),
+                match       : '**/*.less',
+                ignores     : ['**/_*.less'],
+                workers     : Math.min(require('os').cpus().length, cli.MAX_WORKERS)
+            });
+
+            test.done();
+        },
         "directory": function (test) {
             test.ok(knownOpts.hasOwnProperty('directory'), "--directory option should be provided.");
             test.ok(knownOpts.directory === path, "--directory should be path.");
@@ -29,52 +53,37 @@ module.exports = {
 
             test.done();
         },
-        "help": function (test) {
-            test.ok(knownOpts.hasOwnProperty('help'), "--help option should be provided.");
-            test.ok(knownOpts.help === Boolean, "--help should be Boolean.");
+        "match": function (test) {
+            test.ok(knownOpts.hasOwnProperty('match'), "--match option should be provided.");
+            test.ok(knownOpts.match === String, "--match should be String.");
 
-            test.ok(shortHands.hasOwnProperty('h'), "-h alias should be provided.");
-            test.ok(shortHands.h[0] === '--help', "-h should alias --help.");
+            test.ok(shortHands.hasOwnProperty('m'), "-m alias should be provided.");
+            test.ok(shortHands.m[0] === '--match', "-m should alias --match.");
 
             test.done();
         },
-        "version": function (test) {
-            test.ok(knownOpts.hasOwnProperty('version'), "--version option should be provided.");
-            test.ok(knownOpts.version === Boolean, "--version should be Boolean.");
+        "ignores": function (test) {
+            test.ok(knownOpts.hasOwnProperty('ignores'), "--ignores option should be provided.");
+            test.deepEqual(knownOpts.ignores, [String, Array], "--ignores should be an array of strings.");
 
-            test.ok(shortHands.hasOwnProperty('v'), "-v alias should be provided.");
-            test.ok(shortHands.v[0] === '--version', "-v should alias --version.");
+            test.ok(shortHands.hasOwnProperty('i'), "-i alias should be provided.");
+            test.ok(shortHands.i[0] === '--ignores', "-i should alias --ignores.");
+
+            test.done();
+        },
+        "workers": function (test) {
+            test.ok(knownOpts.hasOwnProperty('workers'), "--workers option should be provided.");
+            test.ok(knownOpts.workers === Number, "--workers should be Number.");
+
+            test.ok(shortHands.hasOwnProperty('w'), "-w alias should be provided.");
+            test.ok(shortHands.w[0] === '--workers', "-w should alias --workers.");
 
             test.done();
         }
     },
 
-    "defaults": {
-        "master properties": function (test) {
-            var masterDefaults = cli.masterDefaults;
-
-            test.ok(masterDefaults.hasOwnProperty('directory'), "should have 'directory' property.");
-            test.ok(masterDefaults.hasOwnProperty('match'), "should have 'match' property.");
-            test.ok(masterDefaults.hasOwnProperty('ignores'), "should have 'ignores' property.");
-            test.ok(masterDefaults.hasOwnProperty('workers'), "should have 'workers' property.");
-
-            test.equal(Object.keys(masterDefaults).length, 4, "should not have unexpected properties.");
-
-            test.done();
-        },
-        "master values": function (test) {
-            test.strictEqual(cli.MAX_WORKERS, 8, "MAX_WORKERS should be 8.");
-
-            test.deepEqual(cli.masterDefaults, {
-                directory   : process.cwd(),
-                match       : '**/*.less',
-                ignores     : ['**/_*.less'],
-                workers     : Math.min(require('os').cpus().length, cli.MAX_WORKERS)
-            });
-
-            test.done();
-        },
-        "worker properties": function (test) {
+    "worker options": {
+        "default properties": function (test) {
             var workerDefaults = cli.workerDefaults;
 
             test.ok(workerDefaults.hasOwnProperty('paths'), "should have 'paths' property.");
@@ -96,7 +105,7 @@ module.exports = {
 
             test.done();
         },
-        "worker values": function (test) {
+        "default values": function (test) {
             test.deepEqual(cli.workerDefaults, {
                 paths           : [],
                 optimization    : 1,
@@ -113,6 +122,27 @@ module.exports = {
                 silent          : false,
                 verbose         : false
             });
+
+            test.done();
+        }
+    },
+
+    "cli options": {
+        "help": function (test) {
+            test.ok(knownOpts.hasOwnProperty('help'), "--help option should be provided.");
+            test.ok(knownOpts.help === Boolean, "--help should be Boolean.");
+
+            test.ok(shortHands.hasOwnProperty('h'), "-h alias should be provided.");
+            test.ok(shortHands.h[0] === '--help', "-h should alias --help.");
+
+            test.done();
+        },
+        "version": function (test) {
+            test.ok(knownOpts.hasOwnProperty('version'), "--version option should be provided.");
+            test.ok(knownOpts.version === Boolean, "--version should be Boolean.");
+
+            test.ok(shortHands.hasOwnProperty('v'), "-v alias should be provided.");
+            test.ok(shortHands.v[0] === '--version', "-v should alias --version.");
 
             test.done();
         }
