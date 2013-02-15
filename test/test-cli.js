@@ -333,6 +333,17 @@ module.exports = {
             test.strictEqual(opts.outputdir, path.resolve(this.rootDir));
 
             test.done();
+        },
+        "paths (single delimited string)": function (test) {
+            test.strictEqual(cli.PATH_DELIM, (process.platform === 'win32' ? ';' : ':'));
+
+            // each included path is fully-resolved
+            var includedPaths = [this.rootDir, this.rootDir].map(path.resolve);
+            var opts = cli.parse(['node', 'less-cluster', '-I', includedPaths.join(cli.PATH_DELIM)]);
+
+            test.deepEqual(opts.paths, includedPaths);
+
+            test.done();
         }
     },
 
