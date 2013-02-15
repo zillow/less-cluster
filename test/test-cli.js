@@ -37,28 +37,28 @@ module.exports = {
         },
         "directory": function (test) {
             test.ok(knownOpts.hasOwnProperty('directory'), "--directory option should be provided.");
-            test.ok(knownOpts.directory === path, "--directory should be path.");
+            test.strictEqual(knownOpts.directory, path, "--directory should be a path.");
 
             test.ok(shortHands.hasOwnProperty('d'), "-d alias should be provided.");
-            test.ok(shortHands.d[0] === '--directory', "-d should alias --directory.");
+            test.strictEqual(shortHands.d[0], '--directory', "-d should alias --directory.");
 
             test.done();
         },
         "outputdir": function (test) {
             test.ok(knownOpts.hasOwnProperty('outputdir'), "--outputdir option should be provided.");
-            test.ok(knownOpts.outputdir === path, "--outputdir should be path.");
+            test.strictEqual(knownOpts.outputdir, path, "--outputdir should be a path.");
 
             test.ok(shortHands.hasOwnProperty('o'), "-o alias should be provided.");
-            test.ok(shortHands.o[0] === '--outputdir', "-o should alias --outputdir.");
+            test.strictEqual(shortHands.o[0], '--outputdir', "-o should alias --outputdir.");
 
             test.done();
         },
         "match": function (test) {
             test.ok(knownOpts.hasOwnProperty('match'), "--match option should be provided.");
-            test.ok(knownOpts.match === String, "--match should be String.");
+            test.strictEqual(knownOpts.match, String, "--match should be a String.");
 
             test.ok(shortHands.hasOwnProperty('m'), "-m alias should be provided.");
-            test.ok(shortHands.m[0] === '--match', "-m should alias --match.");
+            test.strictEqual(shortHands.m[0], '--match', "-m should alias --match.");
 
             test.done();
         },
@@ -67,16 +67,16 @@ module.exports = {
             test.deepEqual(knownOpts.ignores, [String, Array], "--ignores should be an array of strings.");
 
             test.ok(shortHands.hasOwnProperty('i'), "-i alias should be provided.");
-            test.ok(shortHands.i[0] === '--ignores', "-i should alias --ignores.");
+            test.strictEqual(shortHands.i[0], '--ignores', "-i should alias --ignores.");
 
             test.done();
         },
         "workers": function (test) {
             test.ok(knownOpts.hasOwnProperty('workers'), "--workers option should be provided.");
-            test.ok(knownOpts.workers === Number, "--workers should be Number.");
+            test.strictEqual(knownOpts.workers, Number, "--workers should be a Number.");
 
             test.ok(shortHands.hasOwnProperty('w'), "-w alias should be provided.");
-            test.ok(shortHands.w[0] === '--workers', "-w should alias --workers.");
+            test.strictEqual(shortHands.w[0], '--workers', "-w should alias --workers.");
 
             test.done();
         }
@@ -124,25 +124,183 @@ module.exports = {
             });
 
             test.done();
+        },
+        "paths": function (test) {
+            test.ok(knownOpts.hasOwnProperty('paths'), "--paths option should be provided.");
+            test.deepEqual(knownOpts.paths, [path, Array], "--paths should be an array of paths.");
+
+            test.ok(shortHands.hasOwnProperty('I'), "-I alias should be provided.");
+            test.strictEqual(shortHands.I[0], '--include-path', "-I should alias --include-path.");
+
+            // dash-case to camelCase
+            test.ok(shortHands.hasOwnProperty('include-path'), "--include-path alias should be provided.");
+            test.strictEqual(shortHands['include-path'][0], '--paths', "--include-path should alias --paths.");
+
+            test.done();
+        },
+        "optimization": function (test) {
+            test.ok(knownOpts.hasOwnProperty('optimization'), "--optimization option should be provided.");
+            test.deepEqual(knownOpts.optimization, [0,1,2], "--optimization should be [0,1,2].");
+
+            test.ok(shortHands.hasOwnProperty('O'), "-O alias should be provided.");
+            test.strictEqual(shortHands.O[0], '--optimization', "-O should alias --optimization.");
+
+            test.done();
+        },
+        "rootpath": function (test) {
+            test.ok(knownOpts.hasOwnProperty('rootpath'), "--rootpath option should be provided.");
+            test.strictEqual(knownOpts.rootpath, String, "--rootpath should be a String.");
+
+            test.ok(shortHands.hasOwnProperty('rp'), "-rp alias should be provided.");
+            test.strictEqual(shortHands.rp[0], '--rootpath', "-rp should alias --rootpath.");
+
+            test.done();
+        },
+        "relativeUrls": function (test) {
+            test.ok(knownOpts.hasOwnProperty('relativeUrls'), "--relativeUrls option should be provided.");
+            test.strictEqual(knownOpts.relativeUrls, Boolean, "--relativeUrls should be Boolean.");
+
+            test.ok(shortHands.hasOwnProperty('ru'), "-ru alias should be provided.");
+            test.strictEqual(shortHands.ru[0], '--relative-urls', "-ru should alias --relative-urls.");
+
+            // dash-case to camelCase
+            test.ok(shortHands.hasOwnProperty('relative-urls'), "--relative-urls alias should be provided.");
+            test.strictEqual(shortHands['relative-urls'][0], '--relativeUrls', "--relative-urls should alias --relativeUrls.");
+
+            test.done();
+        },
+        "color": function (test) {
+            test.ok(knownOpts.hasOwnProperty('color'), "--color option should be provided.");
+            test.strictEqual(knownOpts.color, Boolean, "--color should be Boolean.");
+
+            // no shorthand for --color
+
+            test.done();
+        },
+        "compress": function (test) {
+            test.ok(knownOpts.hasOwnProperty('compress'), "--compress option should be provided.");
+            test.strictEqual(knownOpts.compress, Boolean, "--compress should be Boolean.");
+
+            test.ok(shortHands.hasOwnProperty('x'), "-x alias should be provided.");
+            test.strictEqual(shortHands.x[0], '--compress', "-x should alias --compress.");
+
+            test.done();
+        },
+        "yuicompress": function (test) {
+            test.ok(knownOpts.hasOwnProperty('yuicompress'), "--yuicompress option should be provided.");
+            test.strictEqual(knownOpts.yuicompress, Boolean, "--yuicompress should be Boolean.");
+
+            // no shorthand yuicompress
+
+            // dash-case to camelCase
+            test.ok(shortHands.hasOwnProperty('yui-compress'), "--yui-compress alias should be provided.");
+            test.strictEqual(shortHands['yui-compress'][0], '--yuicompress', "--yui-compress should alias --yuicompress.");
+
+            test.done();
+        },
+        "dumpLineNumbers": function (test) {
+            test.ok(knownOpts.hasOwnProperty('dumpLineNumbers'), "--dumpLineNumbers option should be provided.");
+            test.deepEqual(knownOpts.dumpLineNumbers, ['comments', 'mediaquery', 'all'], "--dumpLineNumbers should be ['comments', 'mediaquery', 'all'].");
+
+            // no shorthand dumpLineNumbers
+
+            // dash-case to camelCase
+            test.ok(shortHands.hasOwnProperty('line-numbers'), "--line-numbers alias should be provided.");
+            test.strictEqual(shortHands['line-numbers'][0], '--dumpLineNumbers', "--line-numbers should alias --dumpLineNumbers.");
+
+            test.done();
+        },
+        "lint": function (test) {
+            test.ok(knownOpts.hasOwnProperty('lint'), "--lint option should be provided.");
+            test.strictEqual(knownOpts.lint, Boolean, "--lint should be Boolean.");
+
+            test.ok(shortHands.hasOwnProperty('l'), "-l alias should be provided.");
+            test.strictEqual(shortHands.l[0], '--lint', "-l should alias --lint.");
+
+            test.done();
+        },
+        "strictImports": function (test) {
+            test.ok(knownOpts.hasOwnProperty('strictImports'), "--strictImports option should be provided.");
+            test.strictEqual(knownOpts.strictImports, Boolean, "--strictImports should be Boolean.");
+
+            // no shorthand --strictImports
+
+            // dash-case to camelCase
+            test.ok(shortHands.hasOwnProperty('strict-imports'), "--strict-imports alias should be provided.");
+            test.strictEqual(shortHands['strict-imports'][0], '--strictImports', "--strict-imports should alias --strictImports.");
+
+            test.done();
+        },
+        "strictMaths": function (test) {
+            test.ok(knownOpts.hasOwnProperty('strictMaths'), "--strictMaths option should be provided.");
+            test.strictEqual(knownOpts.strictMaths, Boolean, "--strictMaths should be Boolean.");
+
+            test.ok(shortHands.hasOwnProperty('sm'), "-sm alias should be provided.");
+            test.strictEqual(shortHands.sm[0], '--strict-maths', "-sm should alias --strict-maths.");
+
+            // dash-case to camelCase
+            test.ok(shortHands.hasOwnProperty('strict-maths'), "--strict-maths alias should be provided.");
+            test.strictEqual(shortHands['strict-maths'][0], '--strictMaths', "--strict-maths should alias --strictMaths.");
+
+            test.done();
+        },
+        "strictUnits": function (test) {
+            test.ok(knownOpts.hasOwnProperty('strictUnits'), "--strictUnits option should be provided.");
+            test.strictEqual(knownOpts.strictUnits, Boolean, "--strictUnits should be Boolean.");
+
+            test.ok(shortHands.hasOwnProperty('su'), "-su alias should be provided.");
+            test.strictEqual(shortHands.su[0], '--strict-units', "-su should alias --strict-units.");
+
+            // dash-case to camelCase
+            test.ok(shortHands.hasOwnProperty('strict-units'), "--strict-units alias should be provided.");
+            test.strictEqual(shortHands['strict-units'][0], '--strictUnits', "--strict-units should alias --strictUnits.");
+
+            test.done();
+        },
+        "silent": function (test) {
+            test.ok(knownOpts.hasOwnProperty('silent'), "--silent option should be provided.");
+            test.strictEqual(knownOpts.silent, Boolean, "--silent should be Boolean.");
+
+            test.ok(shortHands.hasOwnProperty('s'), "-s alias should be provided.");
+            test.strictEqual(shortHands.s[0], '--silent', "-s should alias --silent.");
+
+            test.done();
+        },
+        "verbose": function (test) {
+            test.ok(knownOpts.hasOwnProperty('verbose'), "--verbose option should be provided.");
+            test.strictEqual(knownOpts.verbose, Boolean, "--verbose should be Boolean.");
+
+            test.ok(shortHands.hasOwnProperty('V'), "-V alias should be provided.");
+            test.strictEqual(shortHands.V[0], '--verbose', "-V should alias --verbose.");
+
+            test.done();
+        },
+        "legacy": function (test) {
+            // not present in knownOpts
+
+            test.ok(shortHands.hasOwnProperty('legacy'), "--legacy alias should be provided.");
+            test.deepEqual(shortHands.legacy, ['--no-strictMaths', '--no-strictUnits'], "--legacy should be ['--no-strictMaths', '--no-strictUnits'].");
+
+            test.done();
         }
     },
 
     "cli options": {
         "help": function (test) {
             test.ok(knownOpts.hasOwnProperty('help'), "--help option should be provided.");
-            test.ok(knownOpts.help === Boolean, "--help should be Boolean.");
+            test.strictEqual(knownOpts.help, Boolean, "--help should be Boolean.");
 
             test.ok(shortHands.hasOwnProperty('h'), "-h alias should be provided.");
-            test.ok(shortHands.h[0] === '--help', "-h should alias --help.");
+            test.strictEqual(shortHands.h[0], '--help', "-h should alias --help.");
 
             test.done();
         },
         "version": function (test) {
             test.ok(knownOpts.hasOwnProperty('version'), "--version option should be provided.");
-            test.ok(knownOpts.version === Boolean, "--version should be Boolean.");
+            test.strictEqual(knownOpts.version, Boolean, "--version should be Boolean.");
 
             test.ok(shortHands.hasOwnProperty('v'), "-v alias should be provided.");
-            test.ok(shortHands.v[0] === '--version', "-v should alias --version.");
+            test.strictEqual(shortHands.v[0], '--version', "-v should alias --version.");
 
             test.done();
         }
