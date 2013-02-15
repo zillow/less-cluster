@@ -63,11 +63,13 @@ module.exports = {
             test.done();
         },
         "master values": function (test) {
+            test.strictEqual(cli.MAX_WORKERS, 8, "MAX_WORKERS should be 8.");
+
             test.deepEqual(cli.masterDefaults, {
                 directory   : process.cwd(),
                 match       : '**/*.less',
                 ignores     : ['**/_*.less'],
-                workers     : require('os').cpus().length
+                workers     : Math.min(require('os').cpus().length, cli.MAX_WORKERS)
             });
 
             test.done();
