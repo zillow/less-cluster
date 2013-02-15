@@ -49,6 +49,73 @@ module.exports = {
         }
     },
 
+    "defaults": {
+        "master properties": function (test) {
+            var masterDefaults = cli.masterDefaults;
+
+            test.ok(masterDefaults.hasOwnProperty('directory'), "should have 'directory' property.");
+            test.ok(masterDefaults.hasOwnProperty('match'), "should have 'match' property.");
+            test.ok(masterDefaults.hasOwnProperty('ignores'), "should have 'ignores' property.");
+            test.ok(masterDefaults.hasOwnProperty('workers'), "should have 'workers' property.");
+
+            test.equal(Object.keys(masterDefaults).length, 4, "should not have unexpected properties.");
+
+            test.done();
+        },
+        "master values": function (test) {
+            test.deepEqual(cli.masterDefaults, {
+                directory   : process.cwd(),
+                match       : '**/*.less',
+                ignores     : ['**/_*.less'],
+                workers     : require('os').cpus().length
+            });
+
+            test.done();
+        },
+        "worker properties": function (test) {
+            var workerDefaults = cli.workerDefaults;
+
+            test.ok(workerDefaults.hasOwnProperty('paths'), "should have 'paths' property.");
+            test.ok(workerDefaults.hasOwnProperty('optimization'), "should have 'optimization' property.");
+            test.ok(workerDefaults.hasOwnProperty('rootpath'), "should have 'rootpath' property.");
+            test.ok(workerDefaults.hasOwnProperty('relativeUrls'), "should have 'relativeUrls' property.");
+            test.ok(workerDefaults.hasOwnProperty('color'), "should have 'color' property.");
+            test.ok(workerDefaults.hasOwnProperty('compress'), "should have 'compress' property.");
+            test.ok(workerDefaults.hasOwnProperty('yuicompress'), "should have 'yuicompress' property.");
+            test.ok(workerDefaults.hasOwnProperty('dumpLineNumbers'), "should have 'dumpLineNumbers' property.");
+            test.ok(workerDefaults.hasOwnProperty('lint'), "should have 'lint' property.");
+            test.ok(workerDefaults.hasOwnProperty('strictImports'), "should have 'strictImports' property.");
+            test.ok(workerDefaults.hasOwnProperty('strictMaths'), "should have 'strictMaths' property.");
+            test.ok(workerDefaults.hasOwnProperty('strictUnits'), "should have 'strictUnits' property.");
+            test.ok(workerDefaults.hasOwnProperty('silent'), "should have 'silent' property.");
+            test.ok(workerDefaults.hasOwnProperty('verbose'), "should have 'verbose' property.");
+
+            test.equal(Object.keys(workerDefaults).length, 14, "should not have unexpected properties.");
+
+            test.done();
+        },
+        "worker values": function (test) {
+            test.deepEqual(cli.workerDefaults, {
+                paths           : [],
+                optimization    : 1,
+                rootpath        : '',
+                relativeUrls    : false,
+                color           : true,
+                compress        : false,
+                yuicompress     : false,
+                dumpLineNumbers : false,
+                lint            : false,
+                strictImports   : false,
+                strictMaths     : true,
+                strictUnits     : true,
+                silent          : false,
+                verbose         : false
+            });
+
+            test.done();
+        }
+    },
+
     "parsing": {
         "directory": function (test) {
             var opts = cli.parse(['node', 'less-cluster', '-d', rootDir]);
