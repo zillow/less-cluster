@@ -7,8 +7,6 @@ var cli = require('../lib/cli');
 var knownOpts = cli.knownOpts;
 var shortHands = cli.shortHands;
 
-var rootDir = 'fixtures/cli/';
-
 module.exports = {
     "master options": {
         "default properties": function (test) {
@@ -307,27 +305,32 @@ module.exports = {
     },
 
     "parsing": {
+        "setUp": function (done) {
+            this.rootDir = 'fixtures/cli/';
+            done();
+        },
+
         "directory": function (test) {
-            var opts = cli.parse(['node', 'less-cluster', '-d', rootDir]);
+            var opts = cli.parse(['node', 'less-cluster', '-d', this.rootDir]);
 
             // nopt resolves 'path' types to process.cwd()
-            test.strictEqual(opts.directory, path.resolve(rootDir));
+            test.strictEqual(opts.directory, path.resolve(this.rootDir));
 
             test.done();
         },
         "directory (implicit)": function (test) {
-            var opts = cli.parse(['node', 'less-cluster', rootDir]);
+            var opts = cli.parse(['node', 'less-cluster', this.rootDir]);
 
             // nopt resolves 'path' types to process.cwd()
-            test.strictEqual(opts.directory, path.resolve(rootDir), "A single remaining argument should be interpreted as 'directory'");
+            test.strictEqual(opts.directory, path.resolve(this.rootDir), "A single remaining argument should be interpreted as 'directory'");
 
             test.done();
         },
         "outputdir": function (test) {
-            var opts = cli.parse(['node', 'less-cluster', '-o', rootDir]);
+            var opts = cli.parse(['node', 'less-cluster', '-o', this.rootDir]);
 
             // nopt resolves 'path' types to process.cwd()
-            test.strictEqual(opts.outputdir, path.resolve(rootDir));
+            test.strictEqual(opts.outputdir, path.resolve(this.rootDir));
 
             test.done();
         }
