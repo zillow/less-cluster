@@ -233,8 +233,9 @@ module.exports = {
             test.ok(knownOpts.hasOwnProperty('strictMaths'), "--strictMaths option should be provided.");
             test.strictEqual(knownOpts.strictMaths, Boolean, "--strictMaths should be Boolean.");
 
-            test.ok(shortHands.hasOwnProperty('sm'), "-sm alias should be provided.");
-            test.strictEqual(shortHands.sm[0], '--strictMaths', "-sm should alias --strictMaths.");
+            // no shorthand --strictMaths
+            // test.ok(shortHands.hasOwnProperty('sm'), "-sm alias should be provided.");
+            // test.strictEqual(shortHands.sm[0], '--strictMaths', "-sm should alias --strictMaths.");
 
             // dash-case to camelCase
             test.ok(shortHands.hasOwnProperty('strict-maths'), "--strict-maths alias should be provided.");
@@ -246,8 +247,9 @@ module.exports = {
             test.ok(knownOpts.hasOwnProperty('strictUnits'), "--strictUnits option should be provided.");
             test.strictEqual(knownOpts.strictUnits, Boolean, "--strictUnits should be Boolean.");
 
-            test.ok(shortHands.hasOwnProperty('su'), "-su alias should be provided.");
-            test.strictEqual(shortHands.su[0], '--strictUnits', "-su should alias --strictUnits.");
+            // no shorthand --strictUnits
+            // test.ok(shortHands.hasOwnProperty('su'), "-su alias should be provided.");
+            // test.strictEqual(shortHands.su[0], '--strictUnits', "-su should alias --strictUnits.");
 
             // dash-case to camelCase
             test.ok(shortHands.hasOwnProperty('strict-units'), "--strict-units alias should be provided.");
