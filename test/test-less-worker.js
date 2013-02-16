@@ -17,10 +17,11 @@ module.exports = {
             test.done();
         },
         "should not call init() when instantiated manually": function (test) {
+            /*jshint newcap: false */
             test.expect(1);
 
             var called = 0;
-            var instance = new LessWorker(function () {
+            LessWorker(function () {
                 called += 1;
             });
 
@@ -48,35 +49,17 @@ module.exports = {
         },
 
         "_applyConfig()": function (test) {
+            var defaults = LessWorker.defaults;
+
             // missing options object
             this.instance._applyConfig();
-            test.deepEqual(this.instance.options, {});
+            test.deepEqual(this.instance.options, defaults);
 
-            // arbitrary options passed through
+            // options override defaults
             this.instance._applyConfig({
-                'foo': 'bar'
+                'lint': true
             });
-            test.deepEqual(this.instance.options, {
-                'foo': 'bar'
-            });
-
-            // subsequent applications merge into existing
-            this.instance._applyConfig({
-                'baz': 'qux'
-            });
-            test.deepEqual(this.instance.options, {
-                'foo': 'bar',
-                'baz': 'qux'
-            });
-
-            // and later keys overwrite previous values
-            this.instance._applyConfig({
-                'foo': 'poopypants'
-            });
-            test.deepEqual(this.instance.options, {
-                'foo': 'poopypants',
-                'baz': 'qux'
-            });
+            test.strictEqual(this.instance.options.lint, true, "options should override defaults.");
 
             test.done();
         },
