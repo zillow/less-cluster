@@ -111,7 +111,7 @@ module.exports = {
 
             test.done();
         },
-        "dispatchMessage() should execute valid commands": function (test) {
+        "dispatchMessage() should execute build command": function (test) {
             test.expect(1);
 
             var instance = this.instance;
@@ -127,6 +127,25 @@ module.exports = {
             test.doesNotThrow(function () {
                 instance.dispatchMessage({
                     cmd: 'build'
+                });
+            });
+        },
+        "dispatchMessage() should execute start command": function (test) {
+            test.expect(1);
+
+            var instance = this.instance;
+
+            instance.start = function (msg) {
+                test.deepEqual(msg, {
+                    cmd: 'start'
+                });
+
+                test.done();
+            };
+
+            test.doesNotThrow(function () {
+                instance.dispatchMessage({
+                    cmd: 'start'
                 });
             });
         },
