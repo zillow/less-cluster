@@ -78,10 +78,11 @@ vows.describe('CLI').addBatch({
             assert.ok(workerDefaults.hasOwnProperty('strictImports'), "should have 'strictImports' property.");
             assert.ok(workerDefaults.hasOwnProperty('strictMaths'), "should have 'strictMaths' property.");
             assert.ok(workerDefaults.hasOwnProperty('strictUnits'), "should have 'strictUnits' property.");
+            assert.ok(workerDefaults.hasOwnProperty('ieCompat'), "should have 'ieCompat' property.");
             assert.ok(workerDefaults.hasOwnProperty('silent'), "should have 'silent' property.");
             assert.ok(workerDefaults.hasOwnProperty('verbose'), "should have 'verbose' property.");
 
-            assert.equal(Object.keys(workerDefaults).length, 14, "should not have unexpected properties.");
+            assert.equal(Object.keys(workerDefaults).length, 15, "should not have unexpected properties.");
         },
         "default values": function () {
             assert.deepEqual(cli.workerDefaults, {
@@ -97,6 +98,7 @@ vows.describe('CLI').addBatch({
                 strictImports   : false,
                 strictMaths     : true,
                 strictUnits     : true,
+                ieCompat        : true,
                 silent          : false,
                 verbose         : false
             });
@@ -224,6 +226,20 @@ vows.describe('CLI').addBatch({
 
             assert.ok(shortHands.hasOwnProperty('V'), "-V alias should be provided.");
             assert.strictEqual(shortHands.V[0], '--verbose', "-V should alias --verbose.");
+        },
+        "ieCompat": function () {
+            assert.ok(knownOpts.hasOwnProperty('ieCompat'), "--ieCompat option should be provided.");
+            assert.strictEqual(knownOpts.ieCompat, Boolean, "--ieCompat should be Boolean.");
+
+            // no shorthand --ieCompat
+
+            // dash-case to camelCase
+            assert.ok(shortHands.hasOwnProperty('ie-compat'), "--ie-compat alias should be provided.");
+            assert.strictEqual(shortHands['ie-compat'][0], '--ieCompat', "--ie-compat should alias --ieCompat.");
+
+            // dash-case to camelCase negation (nopt doesn't do it automagically)
+            assert.ok(shortHands.hasOwnProperty('no-ie-compat'), "--no-ie-compat alias should be provided.");
+            assert.strictEqual(shortHands['no-ie-compat'][0], '--no-ieCompat', "--no-ie-compat should alias --no-ieCompat.");
         },
         "legacy": function () {
             // not present in knownOpts

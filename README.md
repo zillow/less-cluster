@@ -43,6 +43,7 @@ LESS Options:
     --strict-imports       Force evaluation of imports.
     --no-strict-maths      Do not require brackets around mathematic expressions. (1.3.x)
     --no-strict-units      Do not require units of operands to match. (1.3.x)
+    --no-ie-compat         Do not limit data-uri embedding to 32KB (IE8)
     --legacy               Disable 1.4.x strictness with both math and units.
     -s, --silent           Suppress error messages.
     -V, --verbose          Become extremely talkative.
