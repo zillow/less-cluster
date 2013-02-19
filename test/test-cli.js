@@ -295,6 +295,15 @@ module.exports = {
 
             test.done();
         },
+        "quiet": function (test) {
+            test.ok(knownOpts.hasOwnProperty('quiet'), "--quiet option should be provided.");
+            test.strictEqual(knownOpts.quiet, Boolean, "--quiet should be Boolean.");
+
+            test.ok(shortHands.hasOwnProperty('q'), "-q alias should be provided.");
+            test.strictEqual(shortHands.q[0], '--quiet', "-q should alias --quiet.");
+
+            test.done();
+        },
         "version": function (test) {
             test.ok(knownOpts.hasOwnProperty('version'), "--version option should be provided.");
             test.strictEqual(knownOpts.version, Boolean, "--version should be Boolean.");
@@ -344,6 +353,14 @@ module.exports = {
             var opts = cli.parse(['node', 'less-cluster', '-I', includedPaths.join(cli.PATH_DELIM)]);
 
             test.deepEqual(opts.paths, includedPaths);
+
+            test.done();
+        },
+        "quiet": function (test) {
+            var opts = cli.parse(['node', 'less-cluster', '--quiet', '--verbose']);
+
+            test.strictEqual(opts.silent, true, '--quiet should enable --silent');
+            test.strictEqual(opts.verbose, false, '--quiet should disable --verbose');
 
             test.done();
         }
