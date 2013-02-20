@@ -10,6 +10,45 @@ A utility to make lessc's CLI more performant for large directories of LESS file
 
 `less-cluster` is designed to be used on entire directories of LESS files, with output generally redirected to a different directory while maintaining the subdirectory structure of the source tree.
 
+```txt
+Usage:
+    less-cluster [options] [<directory>]
+
+    If the -d/--directory option is not passed, it is interpreted as the first
+    argument, defaulting to the current working directory.
+
+Options:
+    -d, --directory        Directory to search for LESS source files.         [$CWD]
+    -o, --outputdir        Directory to output generated CSS files into.      [$CWD]
+    -m, --match            Pattern matching files to be processed.     ["**/*.less"]
+    -i, --ignores          Pattern[s] matching files to be ignored. [["**/_*.less"]]
+    -w, --workers          Number of workers to spawn.          [cpus.length, max 8]
+
+    -q, --quiet            Suppress all logging. Enables --silent, disables --verbose
+    -h, --help             Show this message and exit.
+    -v, --version          Show the version and exit.
+
+LESS Options:
+    -I,  --include-path    Path[s] to find imports on.                        [[""]]
+    -O,  --optimization    Set the parser optimization level.                    [1]
+    -rp, --rootpath        Set the root path prepending relative imports & URLs [""]
+    -ru, --relative-urls   Rewrite relative URLs to the base LESS file.
+    --no-color             Disable color output.
+    -x, --compress         Compress output by removing whitespace.
+    --yui-compress         Compress output with ycssmin.
+    --line-numbers         Output file line numbers. ["comments"|"mediaquery"|"all"]
+    -l, --lint             Syntax check only (no output).
+    --strict-imports       Force evaluation of imports.
+    --no-strict-maths      Do not require brackets around mathematic expressions. (1.3.x)
+    --no-strict-units      Do not require units of operands to match. (1.3.x)
+    --legacy               Disable 1.4.x strictness with both math and units.
+    -s, --silent           Suppress error messages.
+    -V, --verbose          Become extremely talkative.
+
+Report LESS bugs to http://github.com/cloudhead/less.js/issues
+Further documentation: <http://lesscss.org/>
+```
+
 ## License (MIT)
 
 Copyright (c) 2013 Zillow Inc.
