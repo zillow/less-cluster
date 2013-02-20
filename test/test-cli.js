@@ -331,9 +331,10 @@ module.exports = {
         },
         "directory (implicit)": function (test) {
             var opts = cli.parse(['node', 'less-cluster', this.rootDir]);
+            var expected = path.resolve(this.rootDir);
 
             // nopt resolves 'path' types to process.cwd()
-            test.strictEqual(opts.directory, path.resolve(this.rootDir), "A single remaining argument should be interpreted as 'directory'");
+            test.strictEqual(opts.directory, expected, "A single remaining argument should be interpreted as 'directory', " + expected);
 
             test.done();
         },
@@ -342,6 +343,15 @@ module.exports = {
 
             // nopt resolves 'path' types to process.cwd()
             test.strictEqual(opts.outputdir, path.resolve(this.rootDir));
+
+            test.done();
+        },
+        "outputdir (implicit)": function (test) {
+            var opts = cli.parse(['node', 'less-cluster', this.rootDir, this.rootDir + 'out']);
+            var expected = path.resolve(this.rootDir + 'out');
+
+            // nopt resolves 'path' types to process.cwd()
+            test.strictEqual(opts.outputdir, expected, "A second remaining argument should be interpreted as 'outputdir', " + expected);
 
             test.done();
         },
