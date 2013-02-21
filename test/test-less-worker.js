@@ -1,25 +1,21 @@
 /**
 Tests for the worker
 **/
-
+var assert = require('assert');
 var LessWorker = require('../lib/less-worker');
 
 module.exports = {
     "lifecycle": {
-        "should instantiate as constructor or factory": function (test) {
+        "should instantiate as constructor or factory": function () {
             /*jshint newcap: false */
             var instance1 = new LessWorker();
-            test.ok(instance1 instanceof LessWorker);
+            assert.ok(instance1 instanceof LessWorker);
 
             var instance2 = LessWorker();
-            test.ok(instance2 instanceof LessWorker);
-
-            test.done();
+            assert.ok(instance2 instanceof LessWorker);
         },
-        "should not call init() when instantiated manually": function (test) {
+        "should not call init() when instantiated manually": function () {
             /*jshint newcap: false */
-            test.expect(1);
-
             var called = 0;
             LessWorker(function () {
                 called += 1;
@@ -27,19 +23,17 @@ module.exports = {
 
             // the callback passed into the constructor
             // is only called when cluster.isWorker === true
-            test.strictEqual(called, 0);
-
-            test.done();
+            assert.strictEqual(called, 0);
         }
     },
 
     "methods": {
-        "setUp": function (done) {
+        "beforeEach": function (done) {
             this.instance = new LessWorker();
 
             done();
         },
-        "tearDown": function (done) {
+        "afterEach": function (done) {
             // cleanup after event tests
             process.removeAllListeners();
 
@@ -48,110 +42,91 @@ module.exports = {
             done();
         },
 
-        "_applyConfig()": function (test) {
+        "_applyConfig()": function () {
             var defaults = LessWorker.defaults;
 
             // missing options object
             this.instance._applyConfig();
-            test.deepEqual(this.instance.options, defaults);
+            assert.deepEqual(this.instance.options, defaults);
 
             // options override defaults
             this.instance._applyConfig({
                 'lint': true
             });
-            test.strictEqual(this.instance.options.lint, true, "options should override defaults.");
-
-            test.done();
+            assert.strictEqual(this.instance.options.lint, true, "options should override defaults.");
         },
-        "_attachEvents()": function (test) {
-            test.expect(1);
-
+        "_attachEvents()": function (done) {
             this.instance._attachEvents(function () {
                 // workers listen to events on process
-                test.strictEqual(process.listeners('message').length, 1);
+                assert.strictEqual(process.listeners('message').length, 1);
 
-                test.done();
+                done();
             });
         },
-        "init()": function (test) {
-            test.expect(1);
-
+        "init()": function (done) {
             this.instance.init(function (err) {
-                test.ifError(err);
-                test.done();
+                assert.ifError(err);
+                done();
             });
         },
-        "dispatchMessage() should receive message object with command": function (test) {
-            test.expect(2);
-
+        "dispatchMessage() should receive message object with command": function () {
             var instance = this.instance;
 
-            test.throws(function () {
+            assert.throws(function () {
                 instance.dispatchMessage();
             }, "Message must have command");
 
-            test.throws(function () {
+            assert.throws(function () {
                 instance.dispatchMessage({
                     foo: 'foo'
                 });
             }, "Message must have command");
-
-            test.done();
         },
-        "dispatchMessage() should distinguish invalid commands": function (test) {
-            test.expect(1);
-
+        "dispatchMessage() should distinguish invalid commands": function () {
             var instance = this.instance;
 
-            test.throws(function () {
+            assert.throws(function () {
                 instance.dispatchMessage({
                     cmd: 'missing'
                 });
             }, "Message command invalid");
-
-            test.done();
         },
-        "dispatchMessage() should execute build command": function (test) {
-            test.expect(1);
-
+        "dispatchMessage() should execute build command": function (done) {
             var instance = this.instance;
 
             instance.build = function (msg) {
-                test.deepEqual(msg, {
+                assert.deepEqual(msg, {
                     cmd: 'build'
                 });
 
-                test.done();
+                done();
             };
 
-            test.doesNotThrow(function () {
+            assert.doesNotThrow(function () {
                 instance.dispatchMessage({
                     cmd: 'build'
                 });
             });
         },
-        "dispatchMessage() should execute start command": function (test) {
-            test.expect(1);
-
+        "dispatchMessage() should execute start command": function (done) {
             var instance = this.instance;
 
             instance.start = function (msg) {
-                test.deepEqual(msg, {
+                assert.deepEqual(msg, {
                     cmd: 'start'
                 });
 
-                test.done();
+                done();
             };
 
-            test.doesNotThrow(function () {
+            assert.doesNotThrow(function () {
                 instance.dispatchMessage({
                     cmd: 'start'
                 });
             });
         },
-        "build()": function (test) {
-            console.error("TODO");
-            test.done();
+        "build()": function () {
+            // console.error("TODO");
         }
     }
 };

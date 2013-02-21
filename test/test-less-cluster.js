@@ -1,75 +1,68 @@
 /**
 Tests for the main class
 **/
+var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 var LessCluster = require('../lib/less-cluster');
 var path = require('path');
 
 module.exports = {
     "lifecycle": {
-        "should instantiate safely with no config": function (test) {
+        "should instantiate safely with no config": function () {
             var instance = new LessCluster();
-            test.ok(instance instanceof LessCluster);
-            test.done();
+            assert.ok(instance instanceof LessCluster);
         },
-        "factory should instantiate without 'new'": function (test) {
+        "factory should instantiate without 'new'": function () {
             /*jshint newcap: false */
             var instance = LessCluster();
-            test.ok(instance instanceof LessCluster);
-            test.done();
+            assert.ok(instance instanceof LessCluster);
         },
-        "should inherit EventEmitter": function (test) {
+        "should inherit EventEmitter": function (done) {
             var instance = new LessCluster();
 
-            test.ok(LessCluster.super_ === EventEmitter);
-            test.ok(instance instanceof EventEmitter);
+            assert.ok(LessCluster.super_ === EventEmitter);
+            assert.ok(instance instanceof EventEmitter);
 
             instance.on('foo', function (bar) {
-                test.strictEqual(bar, 'bar');
-                test.done();
+                assert.strictEqual(bar, 'bar');
+                done();
             });
             instance.emit('foo', 'bar');
         },
-        "should possess static default options": function (test) {
+        "should possess static default options": function () {
             var options = LessCluster.defaults;
-            test.ok(!!options);
+            assert.ok(!!options);
 
-            test.ok(options.hasOwnProperty('match'));
-            test.ok(options.hasOwnProperty('workers'));
+            assert.ok(options.hasOwnProperty('match'));
+            assert.ok(options.hasOwnProperty('workers'));
 
-            test.strictEqual(options.match, '**/*.less');
-            test.strictEqual(options.workers, require('os').cpus().length);
-
-            test.done();
+            assert.strictEqual(options.match, '**/*.less');
+            assert.strictEqual(options.workers, require('os').cpus().length);
         },
-        "should default all instance options": function (test) {
+        "should default all instance options": function () {
             var instance = new LessCluster();
-            test.ok(instance.hasOwnProperty('options'));
+            assert.ok(instance.hasOwnProperty('options'));
 
-            test.strictEqual(instance.options.match, '**/*.less');
-            test.strictEqual(instance.options.workers, require('os').cpus().length);
-
-            test.done();
+            assert.strictEqual(instance.options.match, '**/*.less');
+            assert.strictEqual(instance.options.workers, require('os').cpus().length);
         },
-        "instance should setup private caches": function (test) {
+        "instance should setup private caches": function () {
             var instance = new LessCluster();
 
-            test.ok(instance.hasOwnProperty('_parents'));
-            test.ok(instance.hasOwnProperty('_children'));
-            test.ok(instance.hasOwnProperty('_fileData'));
+            assert.ok(instance.hasOwnProperty('_parents'));
+            assert.ok(instance.hasOwnProperty('_children'));
+            assert.ok(instance.hasOwnProperty('_fileData'));
 
-            test.deepEqual(instance._parents, {});
-            test.deepEqual(instance._children, {});
-            test.deepEqual(instance._fileData, {});
-
-            test.done();
+            assert.deepEqual(instance._parents, {});
+            assert.deepEqual(instance._children, {});
+            assert.deepEqual(instance._fileData, {});
         },
-        "destroy() should call _detachEvents": function (test) {
+        "destroy() should call _detachEvents": function (done) {
             var instance = new LessCluster();
 
             instance._detachEvents = function () {
-                test.ok(true);
-                test.done();
+                assert.ok(true);
+                done();
             };
 
             instance.destroy();
@@ -77,87 +70,73 @@ module.exports = {
     },
 
     "checkArguments": {
-        "should allow missing config parameter": function (test) {
-            test.expect(2);
-
-            test.doesNotThrow(function () {
+        "should allow missing config parameter": function () {
+            assert.doesNotThrow(function () {
                 var options = LessCluster.checkArguments();
-                test.ok("object" === typeof options);
+                assert.ok("object" === typeof options);
             });
-
-            test.done();
         },
-        "should default options.directory to CWD": function (test) {
+        "should default options.directory to CWD": function () {
             var options = LessCluster.checkArguments({});
 
-            test.strictEqual(options.directory, process.cwd());
-
-            test.done();
+            assert.strictEqual(options.directory, process.cwd());
         },
-        "should default options.outputdir to options.directory": function (test) {
+        "should default options.outputdir to options.directory": function () {
             var options = LessCluster.checkArguments({});
 
-            test.strictEqual(options.outputdir, options.directory);
-
-            test.done();
+            assert.strictEqual(options.outputdir, options.directory);
         }
     },
 
-    "forkWorkers() should execute provided callback": function (test) {
-        test.expect(1);
-
+    "forkWorkers() should execute provided callback": function (done) {
         var instance = new LessCluster({
             workers: 0
         });
 
         instance.forkWorkers(function (err) {
-            test.ifError(err);
+            assert.ifError(err);
             instance.destroy();
-            test.done();
+            done();
         });
     },
 
     "run()": {
-        "setUp": function (done) {
+        "beforeEach": function (done) {
             this.instance = new LessCluster({
                 // prevent workers from actually being spawned
                 workers: 0
             });
             done();
         },
-        "tearDown": function (done) {
+        "afterEach": function (done) {
             this.instance.destroy();
             this.instance = null;
             done();
         },
 
-        "should call collect() without arguments": function (test) {
-            test.expect(1);
-
+        "should call collect() without arguments": function (done) {
             this.instance.setupMaster = function () {};
             this.instance.collect = function () {
-                test.strictEqual(arguments.length, 0);
-                test.done();
+                assert.strictEqual(arguments.length, 0);
+                done();
             };
 
             this.instance.run();
         },
-        "should call setupMaster() with exec path": function (test) {
-            test.expect(1);
-
+        "should call setupMaster() with exec path": function (done) {
             this.instance.setupMaster = function (options) {
-                test.deepEqual(options, {
+                assert.deepEqual(options, {
                     exec: path.resolve(__dirname, '../lib/less-worker.js')
                 });
             };
-            this.instance.collect = test.done;
+            this.instance.collect = done;
 
             this.instance.run();
         },
-        "_attachEvents() should fire after cluster.setupMaster()": function (test) {
+        "_attachEvents() should fire after cluster.setupMaster()": function (done) {
             this.instance._attachEvents = function () {
-                test.ok(true);
-                test.done();
+                assert.ok(true);
+                done();
             };
 
             this.instance.setupMaster();
@@ -165,61 +144,45 @@ module.exports = {
     },
 
     "collect()": {
-        "setUp": function (done) {
+        "beforeEach": function (done) {
             this.instance = new LessCluster();
             done();
         },
-        "tearDown": function (done) {
+        "afterEach": function (done) {
             this.instance.destroy();
             this.instance = null;
             done();
         },
 
-        "_getDestinationPath()": function (test) {
-            test.strictEqual(
+        "_getDestinationPath()": function () {
+            assert.strictEqual(
                 this.instance._getDestinationPath(__dirname + '/fixtures/file-reader/a.less'),
                 __dirname + '/fixtures/file-reader/a.css'
             );
-
-            test.done();
         },
 
-        "_getRelativePath()": function (test) {
-            test.strictEqual(this.instance._getRelativePath(__dirname + '/fixtures'), 'test/fixtures');
-
-            test.done();
+        "_getRelativePath()": function () {
+            assert.strictEqual(this.instance._getRelativePath(__dirname + '/fixtures'), 'test/fixtures');
         },
-        "_getGlobPattern()": function (test) {
-            test.strictEqual(this.instance._getGlobPattern('foo'), 'foo/' + this.instance.options.match);
-
-            test.done();
+        "_getGlobPattern()": function () {
+            assert.strictEqual(this.instance._getGlobPattern('foo'), 'foo/' + this.instance.options.match);
         },
-        "_getLessExtension()": function (test) {
-            test.strictEqual(this.instance._getLessExtension('foo/bar.less'), 'foo/bar.less');
-            test.strictEqual(this.instance._getLessExtension('baz/qux'), 'baz/qux.less');
-
-            test.done();
+        "_getLessExtension()": function () {
+            assert.strictEqual(this.instance._getLessExtension('foo/bar.less'), 'foo/bar.less');
+            assert.strictEqual(this.instance._getLessExtension('baz/qux'), 'baz/qux.less');
         },
-        "_filterCSSImports()": function (test) {
-            test.strictEqual(this.instance._filterCSSImports('foo/bar.less'), true);
-            test.strictEqual(this.instance._filterCSSImports('baz/qux.css'), false);
-
-            test.done();
+        "_filterCSSImports()": function () {
+            assert.strictEqual(this.instance._filterCSSImports('foo/bar.less'), true);
+            assert.strictEqual(this.instance._filterCSSImports('baz/qux.css'), false);
         },
-        "_parseImports()": function (test) {
-            console.error("TODO");
-
-            test.done();
+        "_parseImports()": function () {
+            // console.error("TODO");
         },
-        "_finishCollect()": function (test) {
-            console.error("TODO");
-
-            test.done();
+        "_finishCollect()": function () {
+            // console.error("TODO");
         },
-        "collect()": function (test) {
-            console.error("TODO");
-
-            test.done();
+        "collect()": function () {
+            // console.error("TODO");
         }
     }
 };
