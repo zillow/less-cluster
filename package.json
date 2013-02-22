@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@stash.zillow.local:7999/TOOL/less-cluster.git"
+    "url": "git://github.com/zillow/less-cluster.git"
   },
   "keywords": [
     "less",
@@ -22,7 +22,6 @@
   ],
   "author": "Daniel Stockman <daniels@zillow.com>",
   "license": "MIT",
-  "private": true,
   "devDependencies": {
     "istanbul": "~0.1.30",
     "vows": "~0.7.0"
