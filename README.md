@@ -24,7 +24,6 @@ Options:
     -d, --directory        Directory to search for LESS source files.         [$CWD]
     -o, --outputdir        Directory to output generated CSS files into.      [$CWD]
     -m, --match            Pattern matching files to be processed.     ["**/*.less"]
-    -i, --ignores          Pattern[s] matching files to be ignored. [["**/_*.less"]]
     -w, --workers          Number of workers to spawn.          [cpus.length, max 8]
 
     -q, --quiet            Suppress all logging. Enables --silent, disables --verbose

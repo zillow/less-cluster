@@ -19,10 +19,9 @@ vows.describe('CLI').addBatch({
 
             assert.ok(masterDefaults.hasOwnProperty('directory'), "should have 'directory' property.");
             assert.ok(masterDefaults.hasOwnProperty('match'), "should have 'match' property.");
-            assert.ok(masterDefaults.hasOwnProperty('ignores'), "should have 'ignores' property.");
             assert.ok(masterDefaults.hasOwnProperty('workers'), "should have 'workers' property.");
 
-            assert.equal(Object.keys(masterDefaults).length, 4, "should not have unexpected properties.");
+            assert.equal(Object.keys(masterDefaults).length, 3, "should only have expected properties.");
         },
         "default values": function () {
             assert.strictEqual(cli.MAX_WORKERS, 8, "MAX_WORKERS should be 8.");
@@ -30,7 +29,6 @@ vows.describe('CLI').addBatch({
             assert.deepEqual(cli.masterDefaults, {
                 directory   : process.cwd(),
                 match       : '**/*.less',
-                ignores     : ['**/_*.less'],
                 workers     : Math.min(require('os').cpus().length, cli.MAX_WORKERS)
             });
         },
@@ -54,13 +52,6 @@ vows.describe('CLI').addBatch({
 
             assert.ok(shortHands.hasOwnProperty('m'), "-m alias should be provided.");
             assert.strictEqual(shortHands.m[0], '--match', "-m should alias --match.");
-        },
-        "ignores": function () {
-            assert.ok(knownOpts.hasOwnProperty('ignores'), "--ignores option should be provided.");
-            assert.deepEqual(knownOpts.ignores, [String, Array], "--ignores should be an array of strings.");
-
-            assert.ok(shortHands.hasOwnProperty('i'), "-i alias should be provided.");
-            assert.strictEqual(shortHands.i[0], '--ignores', "-i should alias --ignores.");
         },
         "workers": function () {
             assert.ok(knownOpts.hasOwnProperty('workers'), "--workers option should be provided.");

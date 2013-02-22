@@ -22,9 +22,6 @@ vows.describe('Master').addBatch({
         "should have 'match' default": function (topic) {
             assert.include(topic, 'match');
         },
-        "should have 'ignores' default": function (topic) {
-            assert.include(topic, 'ignores');
-        },
         "should have 'workers' default": function (topic) {
             assert.include(topic, 'workers');
         }
