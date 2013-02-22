@@ -2,9 +2,11 @@
 Tests for the main class
 **/
 var assert = require('assert');
+var vows = require('vows');
+
 var readFiles = require('../lib/read-files');
 
-module.exports = {
+vows.describe('FileReader').addBatch({
     "options": {
         "files should be required": function () {
             assert.throws(function () {
@@ -45,44 +47,54 @@ module.exports = {
         }
     },
 
-    "factory": {
-        "should allow (files)": function () {
-            assert.doesNotThrow(function () { readFiles([]); });
+    "readFiles": {
+        "called with (files)": {
+            topic: function () {
+                return readFiles([]);
+            },
+            "returns instance": function (topic) {
+                assert.instanceOf(topic, readFiles.FileReader);
+            }
         },
-        "should allow (files, cb)": function (done) {
-            readFiles([], function (err, data) {
+        "called with (files, cb)": {
+            topic: function () {
+                readFiles([], this.callback);
+            },
+            "should not error": function (err, data) {
                 assert.ifError(err);
+            },
+            "should return empty data": function (err, data) {
                 assert.deepEqual(data, {});
-                done();
-            });
+            }
         },
-        "should allow (files, options, cb)": function () {
-            var instance = readFiles([], { batchCount: 1 }, function (err, data) {
+        "called with (files, options, cb)": {
+            topic: function () {
+                return readFiles([], { batchCount: 1 }, function () {});
+            },
+            "should preserve options": function (topic) {
+                assert.strictEqual(topic.batchCount, 1);
+            }
+        },
+
+        "should collect files asynchronously": function () {
+            var basedir = __dirname + '/fixtures/file-reader/';
+            var inputFiles = [
+                basedir + 'a.less',
+                basedir + 'b.less',
+                basedir + 'c.less'
+            ];
+
+            readFiles(Array.prototype.slice.call(inputFiles), function (err, data) {
                 assert.ifError(err);
-                assert.deepEqual(data, {});
+
+                // must sort to ensure async order matches input
+                Object.keys(data).sort().forEach(function (datum, idx) {
+                    // the test fixtures are empty files
+                    assert.ok(data[datum] === '');
+                    // the keys are the filepaths
+                    assert.strictEqual(datum, inputFiles[idx]);
+                });
             });
-            assert.strictEqual(instance.batchCount, 1);
         }
-    },
-
-    "should collect files asynchronously": function () {
-        var basedir = __dirname + '/fixtures/file-reader/';
-        var inputFiles = [
-            basedir + 'a.less',
-            basedir + 'b.less',
-            basedir + 'c.less'
-        ];
-
-        readFiles(Array.prototype.slice.call(inputFiles), function (err, data) {
-            assert.ifError(err);
-
-            // must sort to ensure async order matches input
-            Object.keys(data).sort().forEach(function (datum, idx) {
-                // the test fixtures are empty files
-                assert.ok(data[datum] === '');
-                // the keys are the filepaths
-                assert.strictEqual(datum, inputFiles[idx]);
-            });
-        });
     }
-};
+})["export"](module);

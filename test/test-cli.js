@@ -2,13 +2,17 @@
 Tests for the cli arguments
 **/
 var assert = require('assert');
+var vows = require('vows');
 var path = require('path');
 
 var cli = require('../lib/cli');
 var knownOpts = cli.knownOpts;
 var shortHands = cli.shortHands;
 
-module.exports = {
+// used in parsing tests
+var rootDir = 'fixtures/cli/';
+
+vows.describe('CLI').addBatch({
     "master options": {
         "default properties": function () {
             var masterDefaults = cli.masterDefaults;
@@ -263,33 +267,28 @@ module.exports = {
     },
 
     "parsing": {
-        "beforeEach": function (done) {
-            this.rootDir = 'fixtures/cli/';
-            done();
-        },
-
         "directory": function () {
-            var opts = cli.parse(['node', 'less-cluster', '-d', this.rootDir]);
+            var opts = cli.parse(['node', 'less-cluster', '-d', rootDir]);
 
             // nopt resolves 'path' types to process.cwd()
-            assert.strictEqual(opts.directory, path.resolve(this.rootDir));
+            assert.strictEqual(opts.directory, path.resolve(rootDir));
         },
         "directory (implicit)": function () {
-            var opts = cli.parse(['node', 'less-cluster', this.rootDir]);
-            var expected = path.resolve(this.rootDir);
+            var opts = cli.parse(['node', 'less-cluster', rootDir]);
+            var expected = path.resolve(rootDir);
 
             // nopt resolves 'path' types to process.cwd()
             assert.strictEqual(opts.directory, expected, "A single remaining argument should be interpreted as 'directory', " + expected);
         },
         "outputdir": function () {
-            var opts = cli.parse(['node', 'less-cluster', '-o', this.rootDir]);
+            var opts = cli.parse(['node', 'less-cluster', '-o', rootDir]);
 
             // nopt resolves 'path' types to process.cwd()
-            assert.strictEqual(opts.outputdir, path.resolve(this.rootDir));
+            assert.strictEqual(opts.outputdir, path.resolve(rootDir));
         },
         "outputdir (implicit)": function () {
-            var opts = cli.parse(['node', 'less-cluster', this.rootDir, this.rootDir + 'out']);
-            var expected = path.resolve(this.rootDir + 'out');
+            var opts = cli.parse(['node', 'less-cluster', rootDir, rootDir + 'out']);
+            var expected = path.resolve(rootDir + 'out');
 
             // nopt resolves 'path' types to process.cwd()
             assert.strictEqual(opts.outputdir, expected, "A second remaining argument should be interpreted as 'outputdir', " + expected);
@@ -298,7 +297,7 @@ module.exports = {
             assert.strictEqual(cli.PATH_DELIM, (process.platform === 'win32' ? ';' : ':'));
 
             // each included path is fully-resolved
-            var includedPaths = [this.rootDir, this.rootDir].map(path.resolve);
+            var includedPaths = [rootDir, rootDir].map(path.resolve);
             var opts = cli.parse(['node', 'less-cluster', '-I', includedPaths.join(cli.PATH_DELIM)]);
 
             assert.deepEqual(opts.paths, includedPaths);
@@ -329,4 +328,4 @@ module.exports = {
             assert.equal(cli._getVersion(), pack.version, "Version should be obtained from package.json");
         }
     }
-};
+})["export"](module);

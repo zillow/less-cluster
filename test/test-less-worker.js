@@ -2,17 +2,31 @@
 Tests for the worker
 **/
 var assert = require('assert');
+var vows = require('vows');
+
 var LessWorker = require('../lib/less-worker');
 
-module.exports = {
-    "lifecycle": {
-        "should instantiate as constructor or factory": function () {
+vows.describe('Worker').addBatch({
+    "factory": {
+        topic: function () {
             /*jshint newcap: false */
-            var instance1 = new LessWorker();
-            assert.ok(instance1 instanceof LessWorker);
-
-            var instance2 = LessWorker();
-            assert.ok(instance2 instanceof LessWorker);
+            return LessWorker();
+        },
+        "should instantiate without 'new'": function (topic) {
+            assert.ok(topic instanceof LessWorker);
+        }
+    },
+    "instance": {
+        topic: function () {
+            return new LessWorker();
+        },
+        "should instantiate as constructor": function (topic) {
+            assert.ok(topic instanceof LessWorker);
+        },
+        "should set _fileData property to an empty object": function (topic) {
+            assert.ok(topic.hasOwnProperty('_fileData'));
+            assert.isObject(topic._fileData);
+            assert.deepEqual(topic._fileData, {});
         },
         "should not call init() when instantiated manually": function () {
             /*jshint newcap: false */
@@ -28,50 +42,36 @@ module.exports = {
     },
 
     "methods": {
-        "beforeEach": function (done) {
-            this.instance = new LessWorker();
-
-            done();
-        },
-        "afterEach": function (done) {
-            // cleanup after event tests
-            process.removeAllListeners();
-
-            this.instance = null;
-
-            done();
+        topic: function () {
+            return new LessWorker();
         },
 
-        "_applyConfig()": function () {
+        "_applyConfig()": function (instance) {
             var defaults = LessWorker.defaults;
 
             // missing options object
-            this.instance._applyConfig();
-            assert.deepEqual(this.instance.options, defaults);
+            instance._applyConfig();
+            assert.deepEqual(instance.options, defaults);
 
             // options override defaults
-            this.instance._applyConfig({
+            instance._applyConfig({
                 'lint': true
             });
-            assert.strictEqual(this.instance.options.lint, true, "options should override defaults.");
+            assert.strictEqual(instance.options.lint, true, "options should override defaults.");
         },
-        "_attachEvents()": function (done) {
-            this.instance._attachEvents(function () {
+        "_attachEvents()": function (instance) {
+            instance._attachEvents(function () {
                 // workers listen to events on process
                 assert.strictEqual(process.listeners('message').length, 1);
-
-                done();
             });
         },
-        "init()": function (done) {
-            this.instance.init(function (err) {
+        "init()": function (instance) {
+            instance.init(function (err) {
                 assert.ifError(err);
-                done();
             });
+            // process.removeAllListeners();
         },
-        "dispatchMessage() should receive message object with command": function () {
-            var instance = this.instance;
-
+        "dispatchMessage() should receive message object with command": function (instance) {
             assert.throws(function () {
                 instance.dispatchMessage();
             }, "Message must have command");
@@ -82,24 +82,18 @@ module.exports = {
                 });
             }, "Message must have command");
         },
-        "dispatchMessage() should distinguish invalid commands": function () {
-            var instance = this.instance;
-
+        "dispatchMessage() should distinguish invalid commands": function (instance) {
             assert.throws(function () {
                 instance.dispatchMessage({
                     cmd: 'missing'
                 });
             }, "Message command invalid");
         },
-        "dispatchMessage() should execute build command": function (done) {
-            var instance = this.instance;
-
+        "dispatchMessage() should execute build command": function (instance) {
             instance.build = function (msg) {
                 assert.deepEqual(msg, {
                     cmd: 'build'
                 });
-
-                done();
             };
 
             assert.doesNotThrow(function () {
@@ -108,15 +102,11 @@ module.exports = {
                 });
             });
         },
-        "dispatchMessage() should execute start command": function (done) {
-            var instance = this.instance;
-
+        "dispatchMessage() should execute start command": function (instance) {
             instance.start = function (msg) {
                 assert.deepEqual(msg, {
                     cmd: 'start'
                 });
-
-                done();
             };
 
             assert.doesNotThrow(function () {
@@ -129,4 +119,4 @@ module.exports = {
             // console.error("TODO");
         }
     }
-};
+})["export"](module);
