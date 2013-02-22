@@ -7,7 +7,7 @@
     "less-cluster": "./bin/less-cluster"
   },
   "scripts": {
-    "test": "vows --spec test/*.js"
+    "test": "istanbul test --print both vows -- --spec test/*.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "istanbul": "~0.1.30",
     "vows": "~0.7.0"
   },
   "dependencies": {
