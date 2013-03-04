@@ -12,7 +12,9 @@ var shortHands = cli.shortHands;
 // used in parsing tests
 var rootDir = 'fixtures/cli/';
 
-vows.describe('CLI').addBatch({
+var suite = vows.describe('CLI');
+
+suite.addBatch({
     "master options": {
         "default properties": function () {
             var masterDefaults = cli.masterDefaults;
@@ -60,8 +62,10 @@ vows.describe('CLI').addBatch({
             assert.ok(shortHands.hasOwnProperty('w'), "-w alias should be provided.");
             assert.strictEqual(shortHands.w[0], '--workers', "-w should alias --workers.");
         }
-    },
+    }
+});
 
+suite.addBatch({
     "worker options": {
         "default properties": function () {
             var workerDefaults = cli.workerDefaults;
@@ -247,8 +251,10 @@ vows.describe('CLI').addBatch({
             assert.ok(shortHands.hasOwnProperty('legacy'), "--legacy alias should be provided.");
             assert.deepEqual(shortHands.legacy, ['--no-strictMaths', '--no-strictUnits'], "--legacy should be ['--no-strictMaths', '--no-strictUnits'].");
         }
-    },
+    }
+});
 
+suite.addBatch({
     "cli options": {
         "help": function () {
             assert.ok(knownOpts.hasOwnProperty('help'), "--help option should be provided.");
@@ -271,8 +277,10 @@ vows.describe('CLI').addBatch({
             assert.ok(shortHands.hasOwnProperty('v'), "-v alias should be provided.");
             assert.strictEqual(shortHands.v[0], '--version', "-v should alias --version.");
         }
-    },
+    }
+});
 
+suite.addBatch({
     "parsing": {
         "directory": function () {
             var opts = cli.parse(['node', 'less-cluster', '-d', rootDir]);
@@ -315,24 +323,37 @@ vows.describe('CLI').addBatch({
             assert.strictEqual(opts.silent, true, '--quiet should enable --silent');
             assert.strictEqual(opts.verbose, false, '--quiet should disable --verbose');
         }
+    }
+});
+
+suite.addBatch({
+    "usage()": {
+        topic: cli._getUsage(),
+        "should have content": function (topic) {
+            assert.ok(topic);
+        }
     },
-
-    "methods": {
-        "help()": function () {
-            var help = cli._getUsage();
-
-            assert.ok(help, "Usage should have content.");
-        },
-        "parse() should accept optional slice index": function () {
-            var parsedDefaultIndex = cli.parse(['node', 'less-cluster', 'foo']);
-            var parsedCustomIndex  = cli.parse(['foo'], 0);
-
-            assert.deepEqual(parsedDefaultIndex, parsedCustomIndex);
-        },
-        "version()": function () {
+    "version()": {
+        topic: cli._getVersion(),
+        "should be obtained from package.json": function (topic) {
             var pack = require('../package.json');
-
-            assert.equal(cli._getVersion(), pack.version, "Version should be obtained from package.json");
+            assert.equal(topic, pack.version);
+        }
+    },
+    "parse()": {
+        "called with full argv": {
+            topic: cli.parse(['node', 'less-cluster', 'foo']),
+            "should use nopt default slice": function (topic) {
+                assert.deepEqual(topic.argv.remain, ['foo']);
+            }
+        },
+        "called with custom slice arg": {
+            topic: cli.parse(['foo'], 0),
+            "should overwrite nopt slice": function (topic) {
+                assert.deepEqual(topic.argv.remain, ['foo']);
+            }
         }
     }
-})["export"](module);
+});
+
+suite["export"](module);
