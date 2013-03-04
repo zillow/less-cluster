@@ -281,6 +281,36 @@ suite.addBatch({
 });
 
 suite.addBatch({
+    "usage()": {
+        topic: cli._getUsage(),
+        "should have content": function (topic) {
+            assert.ok(topic);
+        }
+    },
+    "version()": {
+        topic: cli._getVersion(),
+        "should be obtained from package.json": function (topic) {
+            var pack = require('../package.json');
+            assert.equal(topic, pack.version);
+        }
+    },
+    "parse()": {
+        "called with full argv": {
+            topic: cli.parse(['node', 'less-cluster', 'foo']),
+            "should use nopt default slice": function (topic) {
+                assert.deepEqual(topic.argv.remain, ['foo']);
+            }
+        },
+        "called with custom slice arg": {
+            topic: cli.parse(['foo'], 0),
+            "should overwrite nopt slice": function (topic) {
+                assert.deepEqual(topic.argv.remain, ['foo']);
+            }
+        }
+    }
+});
+
+suite.addBatch({
     "parsing": {
         "directory": function () {
             var opts = cli.parse(['node', 'less-cluster', '-d', rootDir]);
@@ -322,36 +352,6 @@ suite.addBatch({
 
             assert.strictEqual(opts.silent, true, '--quiet should enable --silent');
             assert.strictEqual(opts.verbose, false, '--quiet should disable --verbose');
-        }
-    }
-});
-
-suite.addBatch({
-    "usage()": {
-        topic: cli._getUsage(),
-        "should have content": function (topic) {
-            assert.ok(topic);
-        }
-    },
-    "version()": {
-        topic: cli._getVersion(),
-        "should be obtained from package.json": function (topic) {
-            var pack = require('../package.json');
-            assert.equal(topic, pack.version);
-        }
-    },
-    "parse()": {
-        "called with full argv": {
-            topic: cli.parse(['node', 'less-cluster', 'foo']),
-            "should use nopt default slice": function (topic) {
-                assert.deepEqual(topic.argv.remain, ['foo']);
-            }
-        },
-        "called with custom slice arg": {
-            topic: cli.parse(['foo'], 0),
-            "should overwrite nopt slice": function (topic) {
-                assert.deepEqual(topic.argv.remain, ['foo']);
-            }
         }
     }
 });
