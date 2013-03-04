@@ -1,5 +1,5 @@
 /**
-Tests for the main class
+Tests for the file reader
 **/
 var assert = require('assert');
 var vows = require('vows');
