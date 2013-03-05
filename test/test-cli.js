@@ -285,6 +285,20 @@ suite.addBatch({
         topic: cli._getUsage(),
         "should have content": function (topic) {
             assert.ok(topic);
+        },
+        "calls _getUsage()": {
+            topic: function () {
+                var called = 0;
+                cli._getUsage = function () {
+                    called += 1;
+                    return "";
+                };
+                cli.usage();
+                return called;
+            },
+            "when executed": function (topic) {
+                assert.strictEqual(topic, 1);
+            }
         }
     },
     "version()": {
@@ -292,6 +306,20 @@ suite.addBatch({
         "should be obtained from package.json": function (topic) {
             var pack = require('../package.json');
             assert.equal(topic, pack.version);
+        },
+        "calls _getVersion()": {
+            topic: function () {
+                var called = 0;
+                cli._getVersion = function () {
+                    called += 1;
+                    return "";
+                };
+                cli.version();
+                return called;
+            },
+            "when executed": function (topic) {
+                assert.strictEqual(topic, 1);
+            }
         }
     },
     "parse()": {
