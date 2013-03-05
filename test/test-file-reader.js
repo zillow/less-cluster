@@ -5,13 +5,13 @@ var assert = require('assert');
 var vows = require('vows');
 
 var readFiles = require('../lib/read-files');
+var suite = vows.describe('FileReader');
 
-vows.describe('FileReader').addBatch({
+suite.addBatch({
     "options": {
         "files should be required": function () {
             assert.throws(function () {
-                /*jshint nonew: false */
-                new readFiles.FileReader();
+                readFiles.FileReader();
             }, "Must pass an array of files to read.");
         },
         "files should be stored in property": function () {
@@ -23,8 +23,7 @@ vows.describe('FileReader').addBatch({
         },
         "encoding, batchCount, and callback should be optional": function () {
             assert.doesNotThrow(function () {
-                /*jshint nonew: false */
-                new readFiles.FileReader(['a']);
+                readFiles.FileReader(['a']);
             });
         },
         "encoding should default to 'utf8'": function () {
@@ -45,8 +44,10 @@ vows.describe('FileReader').addBatch({
             assert.ok(instance.hasOwnProperty('callback'));
             assert.strictEqual(instance.callback, readFiles.FileReader.noop);
         }
-    },
+    }
+});
 
+suite.addBatch({
     "readFiles": {
         "called with (files)": {
             topic: function () {
@@ -76,25 +77,46 @@ vows.describe('FileReader').addBatch({
             }
         },
 
-        "should collect files asynchronously": function () {
-            var basedir = __dirname + '/fixtures/file-reader/';
-            var inputFiles = [
-                basedir + 'a.less',
-                basedir + 'b.less',
-                basedir + 'c.less'
-            ];
+        "with missing files": {
+            topic: function () {
+                var basedir = __dirname + '/fixtures/file-reader/';
+                readFiles([basedir + 'z.less'], this.callback);
+            },
+            "should send error to callback": function (err, data) {
+                assert.isObject(err);
+                assert.isUndefined(data);
+            }
+        },
 
-            readFiles(Array.prototype.slice.call(inputFiles), function (err, data) {
-                assert.ifError(err);
+        "with valid files": {
+            topic: function () {
+                var basedir = __dirname + '/fixtures/file-reader/';
+                return [
+                    basedir + 'a.less',
+                    basedir + 'b.less',
+                    basedir + 'c.less'
+                ];
+            },
+            "asynchronously collected": {
+                topic: function (inputFiles) {
+                    readFiles(inputFiles.slice(), this.callback.bind(this));
+                },
+                "should succeed": function (err, data) {
+                    assert.ifError(err);
 
-                // must sort to ensure async order matches input
-                Object.keys(data).sort().forEach(function (datum, idx) {
-                    // the test fixtures are empty files
-                    assert.ok(data[datum] === '');
-                    // the keys are the filepaths
-                    assert.strictEqual(datum, inputFiles[idx]);
-                });
-            });
+                    var inputFiles = this.context.topics.pop(); // hacktastic!
+
+                    // must sort to ensure async order matches input
+                    Object.keys(data).sort().forEach(function (datum, idx) {
+                        // the test fixtures are empty files
+                        assert.ok(data[datum] === '');
+                        // the keys are the filepaths
+                        assert.strictEqual(datum, inputFiles[idx]);
+                    });
+                }
+            }
         }
     }
-})["export"](module);
+});
+
+suite["export"](module);
