@@ -340,31 +340,43 @@ suite.addBatch({
 
 suite.addBatch({
     "parsing": {
-        "directory": function () {
-            var opts = cli.parse(['node', 'less-cluster', '-d', rootDir]);
-
-            // nopt resolves 'path' types to process.cwd()
-            assert.strictEqual(opts.directory, path.resolve(rootDir));
+        "--directory": {
+            topic: cli.parse(['-d', rootDir], 0),
+            "should resolve to CWD": function (topic) {
+                assert.strictEqual(topic.directory, path.resolve(rootDir));
+            },
+            "as first remaining argument": {
+                topic: cli.parse([rootDir], 0),
+                "should work implicitly": function (topic) {
+                    assert.strictEqual(topic.directory, path.resolve(rootDir));
+                },
+                "with --outputdir": {
+                    topic: cli.parse(['-o', rootDir + 'out', rootDir], 0),
+                    "should still work": function (topic) {
+                        assert.strictEqual(topic.directory, path.resolve(rootDir));
+                    }
+                }
+            }
         },
-        "directory (implicit)": function () {
-            var opts = cli.parse(['node', 'less-cluster', rootDir]);
-            var expected = path.resolve(rootDir);
-
-            // nopt resolves 'path' types to process.cwd()
-            assert.strictEqual(opts.directory, expected, "A single remaining argument should be interpreted as 'directory', " + expected);
-        },
-        "outputdir": function () {
-            var opts = cli.parse(['node', 'less-cluster', '-o', rootDir]);
-
-            // nopt resolves 'path' types to process.cwd()
-            assert.strictEqual(opts.outputdir, path.resolve(rootDir));
-        },
-        "outputdir (implicit)": function () {
-            var opts = cli.parse(['node', 'less-cluster', rootDir, rootDir + 'out']);
-            var expected = path.resolve(rootDir + 'out');
-
-            // nopt resolves 'path' types to process.cwd()
-            assert.strictEqual(opts.outputdir, expected, "A second remaining argument should be interpreted as 'outputdir', " + expected);
+        "--outputdir": {
+            topic: cli.parse(['-o', rootDir], 0),
+            "should resolve to CWD": function (topic) {
+                assert.strictEqual(topic.outputdir, path.resolve(rootDir));
+            },
+            "as first remaining argument": {
+                "with --directory": {
+                    topic: cli.parse(['-d', rootDir, rootDir + 'out'], 0),
+                    "should still work": function (topic) {
+                        assert.strictEqual(topic.outputdir, path.resolve(rootDir + 'out'));
+                    }
+                }
+            },
+            "as second remaining argument": {
+                topic: cli.parse([rootDir, rootDir + 'out'], 0),
+                "should work implicitly": function (topic) {
+                    assert.strictEqual(topic.outputdir, path.resolve(rootDir + 'out'));
+                }
+            }
         },
         "paths (single delimited string)": function () {
             assert.strictEqual(cli.PATH_DELIM, (process.platform === 'win32' ? ';' : ':'));
