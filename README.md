@@ -45,7 +45,7 @@ LESS Options:
     --no-strict-units      Do not require units of operands to match. (1.3.x)
     --no-ie-compat         Do not limit data-uri embedding to 32KB (IE8)
     --legacy               Disable 1.4.x strictness with both math and units.
-    -s, --silent           Suppress error messages.
+    -s, --silent           Suppress error messages. (Implies --quiet)
     -V, --verbose          Become extremely talkative.
 
 Report LESS bugs to http://github.com/cloudhead/less.js/issues

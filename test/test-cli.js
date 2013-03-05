@@ -375,6 +375,14 @@ suite.addBatch({
 
             assert.deepEqual(opts.paths, includedPaths);
         },
+        "--silent": {
+            topic: function () {
+                return cli.parse(['--silent'], 0);
+            },
+            "should enable --quiet": function (topic) {
+                assert.strictEqual(topic.quiet, true);
+            }
+        },
         "quiet": function () {
             var opts = cli.parse(['node', 'less-cluster', '--quiet', '--verbose']);
 
