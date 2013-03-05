@@ -26,7 +26,7 @@ Options:
     -m, --match            Pattern matching files to be processed.     ["**/*.less"]
     -w, --workers          Number of workers to spawn.          [cpus.length, max 8]
 
-    -q, --quiet            Suppress all logging. Enables --silent, disables --verbose
+    -q, --quiet            Only log errors, disabling --verbose.
     -h, --help             Show this message and exit.
     -v, --version          Show the version and exit.
 

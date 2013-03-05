@@ -383,11 +383,13 @@ suite.addBatch({
                 assert.strictEqual(topic.quiet, true);
             }
         },
-        "quiet": function () {
-            var opts = cli.parse(['node', 'less-cluster', '--quiet', '--verbose']);
-
-            assert.strictEqual(opts.silent, true, '--quiet should enable --silent');
-            assert.strictEqual(opts.verbose, false, '--quiet should disable --verbose');
+        "--quiet --verbose": {
+            topic: function () {
+                return cli.parse(['--quiet', '--verbose'], 0);
+            },
+            "should keep --verbose disabled": function (topic) {
+                assert.strictEqual(topic.verbose, false);
+            }
         }
     }
 });
