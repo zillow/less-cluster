@@ -11,26 +11,77 @@ var shortHands = cli.shortHands;
 
 var suite = vows.describe('CLI');
 
+// Constants
 suite.addBatch({
+    "exported property": {
+        "MAX_WORKERS": {
+            topic: cli.MAX_WORKERS,
+            "should be 8": function (topic) {
+                assert.equal(topic, 8);
+            }
+        },
+        "PATH_DELIM": {
+            topic: cli.PATH_DELIM,
+            "should be platform-appropriate": function (topic) {
+                assert.strictEqual(topic, (process.platform === 'win32' ? ';' : ':'));
+            }
+        }
+    }
+});
+
+// Config Helpers
+function assertIncludes(key) {
+    return function (topic) {
+        assert.include(topic, key);
+    };
+}
+
+function keyValueEquals(key, val) {
+    var comparator = assert.strictEqual;
+
+    // non-primitive values need deepEqual
+    if ('object' === typeof val) {
+        comparator = assert.deepEqual;
+    }
+
+    return function (topic) {
+        comparator(topic[key], val);
+    };
+}
+
+function defaultsMatch(expected) {
+    var context = {
+        topic: function () {
+            // "master default" => "masterDefaults"
+            var propertyName = this.context.name.split(' ').shift() + 'Defaults';
+            return cli[propertyName];
+        },
+        "keys": {},
+        "values": {}
+    };
+
+    var expectedKeys = Object.keys(expected);
+
+    expectedKeys.forEach(function (key) {
+        context.keys["include '" + key + "'"] = assertIncludes(key);
+        context.values["default '" + key + "' correctly"] = keyValueEquals(key, expected[key]);
+    });
+
+    context.keys["include only expected"] = function (topic) {
+        assert.strictEqual(Object.keys(topic).length, expectedKeys.length);
+    };
+
+    return context;
+}
+
+// Master Config
+suite.addBatch({
+    "master default": defaultsMatch({
+        directory: process.cwd(),
+        match: "**/*.less",
+        workers: Math.min(require('os').cpus().length, cli.MAX_WORKERS)
+    }),
     "master options": {
-        "default properties": function () {
-            var masterDefaults = cli.masterDefaults;
-
-            assert.ok(masterDefaults.hasOwnProperty('directory'), "should have 'directory' property.");
-            assert.ok(masterDefaults.hasOwnProperty('match'), "should have 'match' property.");
-            assert.ok(masterDefaults.hasOwnProperty('workers'), "should have 'workers' property.");
-
-            assert.equal(Object.keys(masterDefaults).length, 3, "should only have expected properties.");
-        },
-        "default values": function () {
-            assert.strictEqual(cli.MAX_WORKERS, 8, "MAX_WORKERS should be 8.");
-
-            assert.deepEqual(cli.masterDefaults, {
-                directory   : process.cwd(),
-                match       : '**/*.less',
-                workers     : Math.min(require('os').cpus().length, cli.MAX_WORKERS)
-            });
-        },
         "directory": function () {
             assert.ok(knownOpts.hasOwnProperty('directory'), "--directory option should be provided.");
             assert.strictEqual(knownOpts.directory, path, "--directory should be a path.");
@@ -62,48 +113,26 @@ suite.addBatch({
     }
 });
 
+// Worker Config
 suite.addBatch({
+    "worker default": defaultsMatch({
+        paths           : [],
+        optimization    : 1,
+        rootpath        : '',
+        relativeUrls    : false,
+        color           : true,
+        compress        : false,
+        yuicompress     : false,
+        dumpLineNumbers : false,
+        lint            : false,
+        strictImports   : false,
+        strictMaths     : true,
+        strictUnits     : true,
+        ieCompat        : true,
+        silent          : false,
+        verbose         : false
+    }),
     "worker options": {
-        "default properties": function () {
-            var workerDefaults = cli.workerDefaults;
-
-            assert.ok(workerDefaults.hasOwnProperty('paths'), "should have 'paths' property.");
-            assert.ok(workerDefaults.hasOwnProperty('optimization'), "should have 'optimization' property.");
-            assert.ok(workerDefaults.hasOwnProperty('rootpath'), "should have 'rootpath' property.");
-            assert.ok(workerDefaults.hasOwnProperty('relativeUrls'), "should have 'relativeUrls' property.");
-            assert.ok(workerDefaults.hasOwnProperty('color'), "should have 'color' property.");
-            assert.ok(workerDefaults.hasOwnProperty('compress'), "should have 'compress' property.");
-            assert.ok(workerDefaults.hasOwnProperty('yuicompress'), "should have 'yuicompress' property.");
-            assert.ok(workerDefaults.hasOwnProperty('dumpLineNumbers'), "should have 'dumpLineNumbers' property.");
-            assert.ok(workerDefaults.hasOwnProperty('lint'), "should have 'lint' property.");
-            assert.ok(workerDefaults.hasOwnProperty('strictImports'), "should have 'strictImports' property.");
-            assert.ok(workerDefaults.hasOwnProperty('strictMaths'), "should have 'strictMaths' property.");
-            assert.ok(workerDefaults.hasOwnProperty('strictUnits'), "should have 'strictUnits' property.");
-            assert.ok(workerDefaults.hasOwnProperty('ieCompat'), "should have 'ieCompat' property.");
-            assert.ok(workerDefaults.hasOwnProperty('silent'), "should have 'silent' property.");
-            assert.ok(workerDefaults.hasOwnProperty('verbose'), "should have 'verbose' property.");
-
-            assert.equal(Object.keys(workerDefaults).length, 15, "should not have unexpected properties.");
-        },
-        "default values": function () {
-            assert.deepEqual(cli.workerDefaults, {
-                paths           : [],
-                optimization    : 1,
-                rootpath        : '',
-                relativeUrls    : false,
-                color           : true,
-                compress        : false,
-                yuicompress     : false,
-                dumpLineNumbers : false,
-                lint            : false,
-                strictImports   : false,
-                strictMaths     : true,
-                strictUnits     : true,
-                ieCompat        : true,
-                silent          : false,
-                verbose         : false
-            });
-        },
         "paths": function () {
             assert.ok(knownOpts.hasOwnProperty('paths'), "--paths option should be provided.");
             assert.deepEqual(knownOpts.paths, [path, Array], "--paths should be an array of paths.");
@@ -251,6 +280,7 @@ suite.addBatch({
     }
 });
 
+// CLI Options
 suite.addBatch({
     "cli options": {
         "help": function () {
@@ -277,6 +307,7 @@ suite.addBatch({
     }
 });
 
+// Methods
 suite.addBatch({
     "usage()": {
         topic: cli._getUsage(),
@@ -335,7 +366,7 @@ suite.addBatch({
     }
 });
 
-// used in parsing tests
+// Parsing Helpers
 var rootDir = 'fixtures/cli/';
 var absRoot = __dirname + '/' + rootDir;
 
@@ -378,6 +409,7 @@ function additionalFiles(files) {
     return context;
 }
 
+// Parsing
 suite.addBatch({
     "parsing": {
         "--directory": {
