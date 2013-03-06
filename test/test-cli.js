@@ -9,9 +9,6 @@ var cli = require('../lib/cli');
 var knownOpts = cli.knownOpts;
 var shortHands = cli.shortHands;
 
-// used in parsing tests
-var rootDir = 'fixtures/cli/';
-
 var suite = vows.describe('CLI');
 
 suite.addBatch({
@@ -338,6 +335,49 @@ suite.addBatch({
     }
 });
 
+// used in parsing tests
+var rootDir = 'fixtures/cli/';
+var absRoot = __dirname + '/' + rootDir;
+
+function additionalFiles(files) {
+    // http://vowsjs.org/#-macros
+    var subContext = function (args) {
+        return {
+            topic: function () {
+                return cli.parse(args.concat(files), 0);
+            },
+            "should populate files array": function (topic) {
+                assert.isArray(topic.files);
+            },
+            "with two members": function (topic) {
+                assert.equal(topic.files.length, files.length);
+            },
+            "resolved to directory": function (topic) {
+                files.forEach(function (file, i) {
+                    assert.equal(topic.files[i], path.resolve(topic.directory, file));
+                });
+            }
+        };
+    };
+
+    var context = {
+        "explicit (absolute) --directory and --outputdir": subContext(
+            ['-d', absRoot, '-o', absRoot + 'out']
+        ),
+        "implicit (absolute) directory and outputdir": subContext(
+            [absRoot, absRoot + 'out']
+        ),
+        "explicit (relative) --directory and --outputdir": subContext(
+            ['-d', rootDir, '-o', rootDir + 'out']
+        ),
+        "implicit (relative) directory and outputdir": subContext(
+            [rootDir, rootDir + 'out']
+        )
+    };
+
+    return context;
+}
+
 suite.addBatch({
     "parsing": {
         "--directory": {
@@ -378,6 +418,14 @@ suite.addBatch({
                 }
             }
         },
+        "additional (absolute) files passed with": additionalFiles([
+            absRoot + '../file-reader/' + 'a.less',
+            absRoot + '../file-reader/' + 'b.less'
+        ]),
+        "additional (relative) files passed with": additionalFiles([
+            'a.less',
+            'b.less'
+        ]),
         "paths (single delimited string)": function () {
             assert.strictEqual(cli.PATH_DELIM, (process.platform === 'win32' ? ';' : ':'));
 
