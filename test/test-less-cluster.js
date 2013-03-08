@@ -8,7 +8,9 @@ var path = require('path');
 var EventEmitter = require('events').EventEmitter;
 var LessCluster = require('../lib/less-cluster');
 
-vows.describe('Master').addBatch({
+var suite = vows.describe('Master');
+
+suite.addBatch({
     "static defaults": {
         topic: function () {
             return LessCluster.defaults;
@@ -25,7 +27,10 @@ vows.describe('Master').addBatch({
         "should have 'workers' default": function (topic) {
             assert.include(topic, 'workers');
         }
-    },
+    }
+});
+
+suite.addBatch({
     "factory": {
         topic: function () {
             /*jshint newcap: false */
@@ -94,8 +99,10 @@ vows.describe('Master').addBatch({
 
             assert.strictEqual(options.outputdir, options.directory);
         }
-    },
+    }
+});
 
+suite.addBatch({
     "forkWorkers()": {
         topic: function () {
             var instance = new LessCluster({
@@ -107,8 +114,10 @@ vows.describe('Master').addBatch({
         "should execute provided callback": function (err) {
             assert.ifError(err);
         }
-    },
+    }
+});
 
+suite.addBatch({
     "run()": {
         "should call collect() without arguments": function () {
             var instance = new LessCluster({ workers: 0 });
@@ -141,8 +150,10 @@ vows.describe('Master').addBatch({
 
             instance.setupMaster();
         }
-    },
+    }
+});
 
+suite.addBatch({
     "collect()": {
         topic: function () {
             return new LessCluster();
@@ -179,4 +190,6 @@ vows.describe('Master').addBatch({
             // console.error("TODO");
         }
     }
-})["export"](module);
+});
+
+suite["export"](module);
