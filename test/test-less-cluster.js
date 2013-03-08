@@ -213,4 +213,63 @@ suite.addBatch({
     }
 });
 
+function filterInstance(relativePaths) {
+    return function () {
+        return new LessCluster({
+            "directory": importsDir,
+            "_files": relativePaths.map(function (p) {
+                return path.join(importsDir, p);
+            })
+        });
+    };
+}
+
+function filesProcessed(instance) {
+    var test = this;
+
+    instance.startQueue = function (filesToProcess) {
+        // context provides access to this._parents/_children in vows
+        test.callback.call(instance, null, filesToProcess);
+    };
+
+    instance.collect();
+}
+
+suite.addBatch({
+    "_files filter": {
+        "(themes/simple)": {
+            topic: filterInstance(["themes/simple.less"]),
+            "filesToProcess": {
+                topic: filesProcessed,
+                "has three items": function (topic) {
+                    // console.error("parents =", JSON.stringify(this._parents, null, 4));
+                    // console.error("chillun =", JSON.stringify(this._children, null, 4));
+                    assert.equal(topic.length, 3);
+                },
+                "_variables": function (topic) {
+                    assert.strictEqual(topic[0], importsDir + "_variables.less");
+                },
+                "modules/child": function (topic) {
+                    assert.strictEqual(topic[1], importsDir + "modules/child.less");
+                },
+                "themes/simple": function (topic) {
+                    assert.strictEqual(topic[2], importsDir + "themes/simple.less");
+                }
+            }
+        },
+        "(modules/solo)": {
+            topic: filterInstance(["modules/solo.less"]),
+            "filesToProcess": {
+                topic: filesProcessed,
+                "has one item": function (topic) {
+                    assert.equal(topic.length, 1);
+                },
+                "modules/solo": function (topic) {
+                    assert.strictEqual(topic[0], importsDir + "modules/solo.less");
+                }
+            }
+        }
+    }
+});
+
 suite["export"](module);
