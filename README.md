@@ -12,13 +12,17 @@ A utility to make lessc's CLI more performant for large directories of LESS file
 
 ```txt
 Usage:
-    less-cluster [options] [<directory>] [<outputdir>]
+    less-cluster [options] [directory] [outputdir] [files...]
 
     If the -d/--directory option is not passed, it is interpreted as the first
     argument, defaulting to the current working directory.
 
     Likewise, if the -o/--outputdir option is omitted, it is interpreted as the
     second argument, defaulting to the --directory.
+
+    Any additional file arguments will be treated as filters limiting the top-
+    level imports to the denoted files. The dependents and consumers of these
+    files will also be built, as well.
 
 Options:
     -d, --directory        Directory to search for LESS source files.         [$CWD]
