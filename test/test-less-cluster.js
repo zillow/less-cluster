@@ -153,16 +153,18 @@ suite.addBatch({
     }
 });
 
+var importsDir = __dirname + '/fixtures/imports/';
+
 suite.addBatch({
     "collect()": {
-        topic: function () {
-            return new LessCluster();
-        },
+        topic: new LessCluster({
+            "directory": importsDir
+        }),
 
         "_getDestinationPath()": function (topic) {
             assert.strictEqual(
-                topic._getDestinationPath(__dirname + '/fixtures/file-reader/a.less'),
-                __dirname + '/fixtures/file-reader/a.css'
+                topic._getDestinationPath(importsDir + 'base.less'),
+                importsDir + 'base.css'
             );
         },
 
@@ -186,8 +188,27 @@ suite.addBatch({
         "_finishCollect()": function () {
             // console.error("TODO");
         },
-        "collect()": function () {
-            // console.error("TODO");
+        "when executed": {
+            topic: function (instance) {
+                instance.collect(this.callback);
+            },
+            "does not error": function (err, data) {
+                assert.ifError(err);
+            },
+            "provides data object": function (err, data) {
+                assert.isObject(data);
+            },
+            "finds all files successfully": function (err, data) {
+                assert.equal(Object.keys(data).length, 7);
+
+                assert.include(data, importsDir + "_variables.less");
+                assert.include(data, importsDir + "base.less");
+                assert.include(data, importsDir + "modules/child.less");
+                assert.include(data, importsDir + "modules/parent.less");
+                assert.include(data, importsDir + "modules/solo.less");
+                assert.include(data, importsDir + "themes/fancy.less");
+                assert.include(data, importsDir + "themes/simple.less");
+            }
         }
     }
 });
