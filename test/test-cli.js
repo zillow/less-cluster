@@ -378,14 +378,14 @@ function additionalFiles(files) {
                 return cli.parse(args.concat(files), 0);
             },
             "should populate files array": function (topic) {
-                assert.isArray(topic.files);
+                assert.isArray(topic._files);
             },
             "with two members": function (topic) {
-                assert.equal(topic.files.length, files.length);
+                assert.equal(topic._files.length, files.length);
             },
             "resolved to directory": function (topic) {
                 files.forEach(function (file, i) {
-                    assert.equal(topic.files[i], path.resolve(topic.directory, file));
+                    assert.equal(topic._files[i], path.resolve(topic.directory, file));
                 });
             }
         };
