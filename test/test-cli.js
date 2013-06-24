@@ -126,8 +126,8 @@ suite.addBatch({
         dumpLineNumbers : false,
         lint            : false,
         strictImports   : false,
-        strictMaths     : true,
-        strictUnits     : true,
+        strictMath      : false,
+        strictUnits     : false,
         ieCompat        : true,
         silent          : false,
         verbose         : false
@@ -219,25 +219,23 @@ suite.addBatch({
             assert.ok(shortHands.hasOwnProperty('strict-imports'), "--strict-imports alias should be provided.");
             assert.strictEqual(shortHands['strict-imports'][0], '--strictImports', "--strict-imports should alias --strictImports.");
         },
-        "strictMaths": function () {
-            assert.ok(knownOpts.hasOwnProperty('strictMaths'), "--strictMaths option should be provided.");
-            assert.strictEqual(knownOpts.strictMaths, Boolean, "--strictMaths should be Boolean.");
+        "strictMath": function () {
+            assert.ok(knownOpts.hasOwnProperty('strictMath'), "--strictMath option should be provided.");
+            assert.strictEqual(knownOpts.strictMath, Boolean, "--strictMath should be Boolean.");
 
-            // no shorthand --strictMaths
-            // assert.ok(shortHands.hasOwnProperty('sm'), "-sm alias should be provided.");
-            // assert.strictEqual(shortHands.sm[0], '--strictMaths', "-sm should alias --strictMaths.");
+            assert.ok(shortHands.hasOwnProperty('sm'), "-sm alias should be provided.");
+            assert.strictEqual(shortHands.sm[0], '--strictMath', "-sm should alias --strictMath.");
 
             // dash-case to camelCase
-            assert.ok(shortHands.hasOwnProperty('strict-maths'), "--strict-maths alias should be provided.");
-            assert.strictEqual(shortHands['strict-maths'][0], '--strictMaths', "--strict-maths should alias --strictMaths.");
+            assert.ok(shortHands.hasOwnProperty('strict-math'), "--strict-math alias should be provided.");
+            assert.strictEqual(shortHands['strict-math'][0], '--strictMath', "--strict-math should alias --strictMath.");
         },
         "strictUnits": function () {
             assert.ok(knownOpts.hasOwnProperty('strictUnits'), "--strictUnits option should be provided.");
             assert.strictEqual(knownOpts.strictUnits, Boolean, "--strictUnits should be Boolean.");
 
-            // no shorthand --strictUnits
-            // assert.ok(shortHands.hasOwnProperty('su'), "-su alias should be provided.");
-            // assert.strictEqual(shortHands.su[0], '--strictUnits', "-su should alias --strictUnits.");
+            assert.ok(shortHands.hasOwnProperty('su'), "-su alias should be provided.");
+            assert.strictEqual(shortHands.su[0], '--strictUnits', "-su should alias --strictUnits.");
 
             // dash-case to camelCase
             assert.ok(shortHands.hasOwnProperty('strict-units'), "--strict-units alias should be provided.");
@@ -275,7 +273,7 @@ suite.addBatch({
             // not present in knownOpts
 
             assert.ok(shortHands.hasOwnProperty('legacy'), "--legacy alias should be provided.");
-            assert.deepEqual(shortHands.legacy, ['--no-strictMaths', '--no-strictUnits'], "--legacy should be ['--no-strictMaths', '--no-strictUnits'].");
+            assert.deepEqual(shortHands.legacy, ['--no-strictMath', '--no-strictUnits'], "--legacy should be ['--no-strictMath', '--no-strictUnits'].");
         }
     }
 });
