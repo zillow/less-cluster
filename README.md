@@ -42,6 +42,7 @@ LESS Options:
     --no-color             Disable color output.
     -x, --compress         Compress output by removing whitespace.
     --yui-compress         Compress output with ycssmin.
+    --max-line-len         Maximum line length of processed output.             [-1]
     --line-numbers         Output file line numbers. ["comments"|"mediaquery"|"all"]
     -l, --lint             Syntax check only (no output).
     --strict-imports       Force evaluation of imports.

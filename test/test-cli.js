@@ -118,6 +118,7 @@ suite.addBatch({
     "worker default": defaultsMatch({
         paths           : [],
         optimization    : 1,
+        maxLineLen      : -1,
         rootpath        : '',
         relativeUrls    : false,
         color           : true,
@@ -150,6 +151,14 @@ suite.addBatch({
 
             assert.ok(shortHands.hasOwnProperty('O'), "-O alias should be provided.");
             assert.strictEqual(shortHands.O[0], '--optimization', "-O should alias --optimization.");
+        },
+        "maxLineLen": function () {
+            assert.ok(knownOpts.hasOwnProperty('maxLineLen'), "--maxLineLen option should be provided.");
+            assert.strictEqual(knownOpts.maxLineLen, Number, "--maxLineLen should be a Number.");
+
+            // dash-case to camelCase
+            assert.ok(shortHands.hasOwnProperty('max-line-len'), "--max-line-len alias should be provided.");
+            assert.strictEqual(shortHands['max-line-len'][0], '--maxLineLen', "--max-line-len should alias --maxLineLen.");
         },
         "rootpath": function () {
             assert.ok(knownOpts.hasOwnProperty('rootpath'), "--rootpath option should be provided.");
