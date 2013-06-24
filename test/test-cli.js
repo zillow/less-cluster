@@ -462,7 +462,8 @@ suite.addBatch({
             assert.strictEqual(cli.PATH_DELIM, (process.platform === 'win32' ? ';' : ':'));
 
             // each included path is fully-resolved
-            var includedPaths = [rootDir, rootDir].map(path.resolve);
+            var resolvedRoot = path.resolve(rootDir);
+            var includedPaths = [resolvedRoot, resolvedRoot];
             var opts = cli.parse(['node', 'less-cluster', '-I', includedPaths.join(cli.PATH_DELIM)]);
 
             assert.deepEqual(opts.paths, includedPaths);
