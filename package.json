@@ -23,7 +23,7 @@
   "author": "Daniel Stockman <daniels@zillow.com>",
   "license": "MIT",
   "devDependencies": {
-    "istanbul": "~0.1.30",
+    "istanbul": "~0.1.37",
     "vows": "~0.7.0"
   },
   "dependencies": {
