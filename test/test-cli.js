@@ -465,15 +465,46 @@ suite.addBatch({
             'a.less',
             'b.less'
         ]),
-        "paths (single delimited string)": function () {
-            assert.strictEqual(cli.PATH_DELIM, (process.platform === 'win32' ? ';' : ':'));
-
-            // each included path is fully-resolved
-            var resolvedRoot = path.resolve(rootDir);
-            var includedPaths = [resolvedRoot, resolvedRoot];
-            var opts = cli.parse(['node', 'less-cluster', '-I', includedPaths.join(cli.PATH_DELIM)]);
-
-            assert.deepEqual(opts.paths, includedPaths);
+        "--include-path": {
+            "with single delimited string": {
+                topic: function () {
+                    // each included path is fully-resolved
+                    var args = [
+                        '--include-path',
+                        path.resolve(rootDir) + cli.PATH_DELIM + rootDir
+                    ];
+                    return cli.parse(args, 0);
+                },
+                "should split on PATH_DELIM": function (topic) {
+                    assert.strictEqual(cli.PATH_DELIM, (process.platform === 'win32' ? ';' : ':'));
+                    assert.strictEqual(topic.paths.length, 2);
+                },
+                "should resolve all paths": function (topic) {
+                    assert.deepEqual(topic.paths, [
+                        path.resolve(rootDir),
+                        path.resolve(rootDir)
+                    ]);
+                }
+            },
+            "with multiple option strings": {
+                topic: function () {
+                    var args = [
+                        '--include-path', 'fixtures/cli',
+                        '--include-path', 'fixtures/imports',
+                        'fixtures/file-reader/d.less'
+                    ];
+                    return cli.parse(args, 0);
+                },
+                "should collect all args": function (topic) {
+                    assert.strictEqual(topic.paths.length, 2);
+                },
+                "should resolve correctly": function (topic) {
+                    assert.deepEqual(topic.paths, [
+                        path.resolve('fixtures/cli'),
+                        path.resolve('fixtures/imports')
+                    ]);
+                }
+            },
         },
         "--silent": {
             topic: function () {
