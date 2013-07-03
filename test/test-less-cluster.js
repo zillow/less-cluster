@@ -227,9 +227,9 @@ function filterInstance(relativePaths) {
 function filesProcessed(instance) {
     var test = this;
 
-    instance.startQueue = function (filesToProcess) {
+    instance.startQueue = function (filesToProcess, filesToRead) {
         // context provides access to this._parents/_children in vows
-        test.callback.call(instance, null, filesToProcess);
+        test.callback.call(instance, null, filesToProcess, filesToRead);
     };
 
     instance.collect();
@@ -237,35 +237,67 @@ function filesProcessed(instance) {
 
 suite.addBatch({
     "_files filter": {
-        "(themes/simple)": {
+        "[themes/simple]": {
             topic: filterInstance(["themes/simple.less"]),
-            "filesToProcess": {
+            "startQueue()": {
                 topic: filesProcessed,
-                "has three items": function (topic) {
-                    // console.error("parents =", JSON.stringify(this._parents, null, 4));
-                    // console.error("chillun =", JSON.stringify(this._children, null, 4));
-                    assert.equal(topic.length, 3);
+                "filesToProcess": {
+                    topic: function (filesToProcess, filesToRead) {
+                        return filesToProcess;
+                    },
+                    "has one item": function (topic) {
+                        assert.equal(topic.length, 1);
+                    },
+                    "matches filter": function (topic) {
+                        assert.strictEqual(topic[0], importsDir + "themes/simple.less");
+                    }
                 },
-                "_variables": function (topic) {
-                    assert.strictEqual(topic[0], importsDir + "_variables.less");
-                },
-                "modules/child": function (topic) {
-                    assert.strictEqual(topic[1], importsDir + "modules/child.less");
-                },
-                "themes/simple": function (topic) {
-                    assert.strictEqual(topic[2], importsDir + "themes/simple.less");
+                "filesToRead" : {
+                    topic: function (filesToProcess, filesToRead) {
+                        return filesToRead;
+                    },
+                    "has three items": function (topic) {
+                        // console.error("parents =", JSON.stringify(this._parents, null, 4));
+                        // console.error("chillun =", JSON.stringify(this._children, null, 4));
+                        assert.equal(topic.length, 3);
+                    },
+                    "_variables": function (topic) {
+                        assert.strictEqual(topic[0], importsDir + "_variables.less");
+                    },
+                    "modules/child": function (topic) {
+                        assert.strictEqual(topic[1], importsDir + "modules/child.less");
+                    },
+                    "themes/simple": function (topic) {
+                        assert.strictEqual(topic[2], importsDir + "themes/simple.less");
+                    }
                 }
             }
         },
-        "(modules/solo)": {
+        "[modules/solo]": {
             topic: filterInstance(["modules/solo.less"]),
-            "filesToProcess": {
+            "startQueue()": {
                 topic: filesProcessed,
-                "has one item": function (topic) {
-                    assert.equal(topic.length, 1);
+                "filesToProcess": {
+                    topic: function (filesToProcess, filesToRead) {
+                        return filesToProcess;
+                    },
+                    "has one item": function (topic) {
+                        assert.equal(topic.length, 1);
+                    },
+                    "modules/solo": function (topic) {
+                        assert.strictEqual(topic[0], importsDir + "modules/solo.less");
+                    }
                 },
-                "modules/solo": function (topic) {
-                    assert.strictEqual(topic[0], importsDir + "modules/solo.less");
+                "filesToRead": {
+                    topic: function (filesToProcess, filesToRead) {
+                        return filesToRead;
+                    },
+                    "has one item": function (topic) {
+                        assert.equal(topic.length, 1);
+                    },
+                    "modules/solo": function (topic) {
+                        assert.strictEqual(topic[0], importsDir + "modules/solo.less");
+                    }
                 }
             }
         }
