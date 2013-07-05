@@ -1,3 +1,6 @@
 @import '../_variables.less';
-@import 'child.less';
-@import '../themes/fancy.less';
+@import (less) 'child.less';
+
+.nested {
+    @import '../themes/fancy.less';
+}
