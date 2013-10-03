@@ -10,7 +10,7 @@ A utility to make lessc's CLI more performant for large directories of LESS file
 
 `less-cluster` is designed to be used on entire directories of LESS files, with output generally redirected to a different directory while maintaining the subdirectory structure of the source tree.
 
-```txt
+```text
 Usage:
     less-cluster [options] [directory] [outputdir] [files...]
 
