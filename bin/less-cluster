@@ -5,15 +5,13 @@ var options = cli.parse(process.argv);
 
 // ensure arguments are passed, otherwise echo usage
 if (options && options.argv.original.length) {
-    options.cli = true;
-
     if (options.help) {
         cli.usage();
     } else if (options.version) {
         cli.version();
     } else {
         try {
-            require('../lib/less-cluster')(options);
+            require('../lib/less-cluster')(options).run();
         } catch (ex) {
             cli.usage();
             console.log(ex);
