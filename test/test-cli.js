@@ -8,6 +8,7 @@ var path = require('path');
 var cli = require('../lib/cli');
 var knownOpts = cli.knownOpts;
 var shortHands = cli.shortHands;
+var mix = require('../lib/utils').mix;
 
 var suite = vows.describe('CLI');
 
@@ -354,6 +355,14 @@ suite.addBatch({
             },
             "when executed": function (topic) {
                 assert.strictEqual(topic, 1);
+            }
+        }
+    },
+    "clean()": {
+        "called with empty object": {
+            topic: cli.clean(mix()),
+            "should return empty config": function (topic) {
+                assert.deepEqual(topic, {});
             }
         }
     },
