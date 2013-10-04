@@ -23,7 +23,7 @@ suite.addBatch({
         "PATH_DELIM": {
             topic: cli.PATH_DELIM,
             "should be platform-appropriate": function (topic) {
-                assert.strictEqual(topic, (process.platform === 'win32' ? ';' : ':'));
+                assert.strictEqual(topic, path.delimiter);
             }
         }
     }
@@ -476,7 +476,6 @@ suite.addBatch({
                     return cli.parse(args, 0);
                 },
                 "should split on PATH_DELIM": function (topic) {
-                    assert.strictEqual(cli.PATH_DELIM, (process.platform === 'win32' ? ';' : ':'));
                     assert.strictEqual(topic.paths.length, 2);
                 },
                 "should resolve all paths": function (topic) {
