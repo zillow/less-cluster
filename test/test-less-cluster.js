@@ -98,6 +98,14 @@ suite.addBatch({
             var options = LessCluster.checkArguments({});
 
             assert.strictEqual(options.outputdir, options.directory);
+        },
+        "should not override custom outputdir": function () {
+            var options = LessCluster.checkArguments({
+                outputdir: 'foo'
+            });
+
+            assert.strictEqual(options.outputdir, 'foo');
+            assert.notStrictEqual(options.outputdir, options.directory);
         }
     }
 });
