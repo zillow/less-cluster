@@ -6,9 +6,9 @@ var vows = require('vows');
 var path = require('path');
 
 var EventEmitter = require('events').EventEmitter;
-var LessCluster = require('../lib/less-cluster');
+var LessCluster = require('../');
 
-var suite = vows.describe('Master');
+var suite = vows.describe('LessCluster');
 
 suite.addBatch({
     "static defaults": {
@@ -65,20 +65,6 @@ suite.addBatch({
             assert.deepEqual(topic._parents, {});
             assert.deepEqual(topic._children, {});
             assert.deepEqual(topic._fileData, {});
-        },
-        "destroy()": {
-            topic: function () {
-                var instance = new LessCluster();
-
-                instance._detachEvents = function () {
-                    this.callback(true);
-                };
-
-                instance.destroy();
-            },
-            "should call _detachEvents": function (topic) {
-                assert.ok(topic);
-            }
         }
     },
 
@@ -106,57 +92,6 @@ suite.addBatch({
 
             assert.strictEqual(options.outputdir, 'foo');
             assert.notStrictEqual(options.outputdir, options.directory);
-        }
-    }
-});
-
-suite.addBatch({
-    "forkWorkers()": {
-        topic: function () {
-            var instance = new LessCluster({
-                workers: 0
-            });
-
-            instance.forkWorkers(this.callback);
-        },
-        "should execute provided callback": function (err) {
-            assert.ifError(err);
-        }
-    }
-});
-
-suite.addBatch({
-    "run()": {
-        "should call collect() without arguments": function () {
-            var instance = new LessCluster({ workers: 0 });
-
-            instance.setupMaster = function () {};
-            instance.collect = function () {
-                assert.strictEqual(arguments.length, 0);
-            };
-
-            instance.run();
-        },
-        "should call setupMaster() with exec path": function () {
-            var instance = new LessCluster({ workers: 0 });
-
-            instance.setupMaster = function (options) {
-                assert.deepEqual(options, {
-                    exec: path.resolve(__dirname, '../lib/less-worker.js')
-                });
-            };
-            instance.collect = function () {};
-
-            instance.run();
-        },
-        "_attachEvents() should fire after cluster.setupMaster()": function () {
-            var instance = new LessCluster({ workers: 0 });
-
-            instance._attachEvents = function () {
-                assert.ok(true);
-            };
-
-            instance.setupMaster();
         }
     }
 });
@@ -254,13 +189,13 @@ function filterInstance(relativePaths) {
 function filesQueued(instance) {
     var test = this;
 
-    instance.startQueue = function (filesToProcess, filesToRead) {
+    instance.removeAllListeners("start").once("start", function (toProcess, toRead) {
         // context provides access to this._parents/_children in vows
         test.callback.call(instance, null, {
-            "filesToProcess": filesToProcess,
-            "filesToRead": filesToRead
+            "filesToProcess": toProcess,
+            "filesToRead": toRead
         });
-    };
+    });
 
     instance.collect();
 }
