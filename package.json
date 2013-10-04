@@ -2,7 +2,7 @@
   "name": "less-cluster",
   "version": "0.4.4",
   "description": "Parallel, directory-based execution of lessc.",
-  "main": "lib/less-cluster.js",
+  "main": "index.js",
   "bin": {
     "less-cluster": "./bin/less-cluster"
   },
