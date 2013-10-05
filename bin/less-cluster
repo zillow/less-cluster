@@ -11,7 +11,7 @@ if (options && options.argv.original.length) {
         cli.version();
     } else {
         try {
-            require('../lib/less-cluster')(options).run();
+            require('../').Master(options).run();
         } catch (ex) {
             cli.usage();
             console.log(ex);
