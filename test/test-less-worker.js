@@ -1,55 +1,51 @@
+/*global describe, it, before, beforeEach, after, afterEach, chai, should, sinon */
 /**
 Tests for the worker
 **/
-var assert = require('assert');
-var vows = require('vows');
-
 var LessWorker = require('../lib/less-worker');
 
-vows.describe('LessWorker').addBatch({
-    "factory": {
-        topic: function () {
-            /*jshint newcap: false */
-            return LessWorker();
-        },
-        "should instantiate without 'new'": function (topic) {
-            assert.ok(topic instanceof LessWorker);
-        }
-    },
-    "instance": {
-        topic: function () {
-            return new LessWorker();
-        },
-        "should instantiate as constructor": function (topic) {
-            assert.ok(topic instanceof LessWorker);
-        },
-        "should set _fileData property to an empty object": function (topic) {
-            assert.ok(topic.hasOwnProperty('_fileData'));
-            assert.isObject(topic._fileData);
-            assert.deepEqual(topic._fileData, {});
-        }
-    },
+describe('LessWorker', function () {
+    /*jshint expr:true */
 
-    "methods": {
-        topic: function () {
-            return new LessWorker();
-        },
+    describe("factory", function () {
+        /*jshint newcap: false */
+        var instance = LessWorker();
 
-        "_applyConfig()": function (instance) {
+        it("should instantiate without 'new'", function () {
+            instance.should.be.an.instanceof(LessWorker);
+        });
+    });
+    describe("instance", function () {
+        var instance = new LessWorker();
+
+        it("should instantiate as constructor", function () {
+            instance.should.be.an.instanceof(LessWorker);
+        });
+        it("should set _fileData property to an empty object", function () {
+            instance.should.have.property('_fileData')
+                .that.is.an('object')
+                .that.deep.equals({});
+        });
+    });
+    describe("methods", function () {
+        describe("_applyConfig()", function () {
             var defaults = LessWorker.defaults;
+            var instance = new LessWorker();
 
-            // missing options object
-            instance._applyConfig();
-            assert.deepEqual(instance.options, defaults);
-
-            // options override defaults
-            instance._applyConfig({
-                'lint': true
+            it("defaults values when missing", function () {
+                instance._applyConfig();
+                instance.options.should.deep.equal(defaults);
             });
-            assert.strictEqual(instance.options.lint, true, "options should override defaults.");
-        },
-        "build()": function () {
-            // console.error("TODO");
-        }
-    }
-})["export"](module);
+
+            it("overrides defaults when passed", function () {
+                instance._applyConfig({
+                    'lint': true
+                });
+                instance.options.should.have.property('lint').that.is.true;
+            });
+        });
+        describe("build()", function () {
+            it("TODO");
+        });
+    });
+});

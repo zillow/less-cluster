@@ -1,271 +1,187 @@
+/*global describe, it, before, beforeEach, after, afterEach, chai, should, sinon */
 /**
 Tests for the main class
 **/
-var assert = require('assert');
-var vows = require('vows');
 var path = require('path');
 
 var EventEmitter = require('events').EventEmitter;
 var LessCluster = require('../');
 
-var suite = vows.describe('LessCluster');
+var importsDir = __dirname + '/fixtures/imports/';
 
-suite.addBatch({
-    "static defaults": {
-        topic: function () {
-            return LessCluster.defaults;
-        },
-        "should be an object": function (topic) {
-            assert.isObject(topic);
-        },
-        "should have 'directory' default": function (topic) {
-            assert.include(topic, 'directory');
-        },
-        "should have 'match' default": function (topic) {
-            assert.include(topic, 'match');
-        },
-        "should have 'workers' default": function (topic) {
-            assert.include(topic, 'workers');
-        }
-    }
-});
+describe("LessCluster", function () {
+    /*jshint expr:true */
 
-suite.addBatch({
-    "factory": {
-        topic: function () {
-            /*jshint newcap: false */
-            return LessCluster();
-        },
-        "should instantiate without 'new'": function (topic) {
-            assert.ok(topic instanceof LessCluster);
-        }
-    },
-    "instance": {
-        topic: function () {
-            return new LessCluster();
-        },
-        "should instantiate safely with no config": function (topic) {
-            assert.ok(topic instanceof LessCluster);
-        },
-        "should inherit EventEmitter": function (topic) {
-            assert.ok(LessCluster.super_ === EventEmitter);
-            assert.ok(topic instanceof EventEmitter);
-        },
-        "should default all options": function (topic) {
-            assert.ok(topic.hasOwnProperty('options'));
+    describe("static defaults", function () {
+        it("should be present", function () {
+            should.exist(LessCluster.defaults);
+        });
+        it("should be an object", function () {
+            LessCluster.defaults.should.be.an('object');
+        });
+        it("should have 'directory' default", function () {
+            LessCluster.defaults.should.have.property('directory');
+        });
+        it("should have 'match' default", function () {
+            LessCluster.defaults.should.have.property('match');
+        });
+        it("should have 'workers' default", function () {
+            LessCluster.defaults.should.have.property('workers');
+        });
+    });
 
-            assert.strictEqual(topic.options.match, '**/*.less');
-            assert.strictEqual(topic.options.workers, require('os').cpus().length);
-        },
-        "should setup private caches": function (topic) {
-            assert.ok(topic.hasOwnProperty('_parents'));
-            assert.ok(topic.hasOwnProperty('_children'));
-            assert.ok(topic.hasOwnProperty('_fileData'));
-
-            assert.deepEqual(topic._parents, {});
-            assert.deepEqual(topic._children, {});
-            assert.deepEqual(topic._fileData, {});
-        }
-    },
-
-    "checkArguments": {
-        "should allow missing config parameter": function () {
-            assert.doesNotThrow(function () {
+    describe("checkArguments()", function () {
+        it("should be a static method", function () {
+            LessCluster.should.itself.respondTo('checkArguments');
+        });
+        it("should allow missing config parameter", function () {
+            should.not.Throw(function () {
                 var options = LessCluster.checkArguments();
-                assert.ok("object" === typeof options);
+                should.exist(options);
+                options.should.be.an('object');
             });
-        },
-        "should default options.directory to CWD": function () {
+        });
+        it("should default options.directory to CWD", function () {
             var options = LessCluster.checkArguments({});
 
-            assert.strictEqual(options.directory, process.cwd());
-        },
-        "should default options.outputdir to options.directory": function () {
+            options.directory.should.equal(LessCluster.defaults.directory);
+        });
+        it("should default options.outputdir to options.directory", function () {
             var options = LessCluster.checkArguments({});
 
-            assert.strictEqual(options.outputdir, options.directory);
-        },
-        "should not override custom outputdir": function () {
+            options.outputdir.should.equal(options.directory);
+        });
+        it("should not override custom outputdir", function () {
             var options = LessCluster.checkArguments({
                 outputdir: 'foo'
             });
 
-            assert.strictEqual(options.outputdir, 'foo');
-            assert.notStrictEqual(options.outputdir, options.directory);
-        }
-    }
-});
-
-var importsDir = __dirname + '/fixtures/imports/';
-
-function addImportsDir(relativePath) {
-    if (Array.isArray(relativePath)) {
-        return relativePath.map(addImportsDir);
-    }
-    return path.join(importsDir, relativePath);
-}
-
-function removeImportsDir(relativePath) {
-    if (Array.isArray(relativePath)) {
-        return relativePath.map(removeImportsDir);
-    }
-    return relativePath.replace(importsDir, '');
-}
-
-suite.addBatch({
-    "collect()": {
-        topic: new LessCluster({
-            "directory": importsDir
-        }),
-
-        "_getDestinationPath()": function (topic) {
-            assert.strictEqual(
-                topic._getDestinationPath(addImportsDir('base.less')),
-                addImportsDir('base.css')
-            );
-        },
-
-        "_getRelativePath()": function (topic) {
-            assert.strictEqual(topic._getRelativePath(__dirname + '/fixtures'), 'test/fixtures');
-        },
-        "_getGlobPattern()": function (topic) {
-            assert.strictEqual(topic._getGlobPattern('foo'), 'foo/' + topic.options.match);
-        },
-        "_getLessExtension()": function (topic) {
-            assert.strictEqual(topic._getLessExtension('foo/bar.less'), 'foo/bar.less');
-            assert.strictEqual(topic._getLessExtension('baz/qux'), 'baz/qux.less');
-        },
-        "_filterCSSImports()": function (topic) {
-            assert.strictEqual(topic._filterCSSImports('foo/bar.less'), true);
-            assert.strictEqual(topic._filterCSSImports('baz/qux.css'), false);
-        },
-        "_parseImports()": function () {
-            // console.error("TODO");
-        },
-        "_finishCollect()": function () {
-            // console.error("TODO");
-        },
-        "when executed": {
-            topic: function (instance) {
-                instance.collect(this.callback);
-            },
-            "does not error": function (err, data) {
-                assert.ifError(err);
-            },
-            "provides data object": function (err, data) {
-                assert.isObject(data);
-            },
-            "finds all files successfully": function (err, data) {
-                assert.equal(Object.keys(data).length, 7);
-
-                assert.include(data, addImportsDir("_variables.less"));
-                assert.include(data, addImportsDir("base.less"));
-                assert.include(data, addImportsDir("modules/child.less"));
-                assert.include(data, addImportsDir("modules/parent.less"));
-                assert.include(data, addImportsDir("modules/solo.less"));
-                assert.include(data, addImportsDir("themes/fancy.less"));
-                assert.include(data, addImportsDir("themes/simple.less"));
-            }
-        }
-    }
-});
-
-function filterInstance(relativePaths) {
-    var instanceConfig = {
-        "directory": importsDir
-    };
-
-    if (relativePaths && relativePaths.length) {
-        instanceConfig._files = relativePaths.map(function (p) {
-            return path.join(importsDir, p);
-        });
-    }
-
-    return function () {
-        return new LessCluster(instanceConfig);
-    };
-}
-
-function filesQueued(instance) {
-    var test = this;
-
-    instance.removeAllListeners("start").once("start", function (toProcess, toRead) {
-        // context provides access to this._parents/_children in vows
-        test.callback.call(instance, null, {
-            "filesToProcess": toProcess,
-            "filesToRead": toRead
+            options.outputdir.should.equal('foo');
+            options.outputdir.should.not.equal(options.directory);
         });
     });
 
-    instance.collect();
-}
-
-function expectFiles(expected) {
-    var ctx = {
-        topic: function (queueArgs, instance) {
-            // console.error("parents =", JSON.stringify(instance._parents, null, 4));
-            // console.error("chillun =", JSON.stringify(instance._children, null, 4));
-            return queueArgs[this.context.name];
-        }
-    };
-
-    var testLengthName = expected.length
-        ? "has " + expected.length + " item"
-        : "has no items";
-    if (expected.length > 1) {
-        testLengthName += "s";
-    }
-
-    ctx[testLengthName] = function (topic) {
-        // console.error(JSON.stringify(topic, null, 4));
-        assert.equal(topic.length, expected.length);
-    };
-
-    ctx["matches all files"] = function (topic) {
-        var absolutized = expected.map(addImportsDir);
-        assert.deepEqual(topic, absolutized, "Unexpected:\n" +
-            JSON.stringify(topic.map(removeImportsDir), null, 4)
-        );
-    };
-
-    expected.forEach(function (relativePath, i) {
-        ctx[relativePath] = function (topic) {
-            assert.strictEqual(topic[i], addImportsDir(relativePath));
-        };
+    describe("factory", function () {
+        it("should instantiate without 'new'", function () {
+            /*jshint newcap: false */
+            var instance = LessCluster();
+            instance.should.be.an.instanceof(LessCluster);
+        });
     });
 
-    return ctx;
-}
+    describe("instance", function () {
+        var instance;
+        before(function () {
+            instance = new LessCluster();
+        });
 
-function filtersOutput(config) {
-    // http://vowsjs.org/#-macros
+        it("should instantiate safely with no config", function () {
+            should.exist(instance);
+        });
+        it("should inherit EventEmitter", function () {
+            instance.should.be.an.instanceof(EventEmitter);
+        });
+        it("should set options", function () {
+            instance.should.have.ownProperty('options');
+        });
+        it("should default all option values", function () {
+            instance.options.should.have.property('directory',  LessCluster.defaults.directory);
+            instance.options.should.have.property('match',      LessCluster.defaults.match);
+            instance.options.should.have.property('workers',    LessCluster.defaults.workers);
+        });
+        it("should setup private caches", function () {
+            instance.should.have.ownProperty('_parents',  {});
+            instance.should.have.ownProperty('_children', {});
+            instance.should.have.ownProperty('_fileData', {});
+        });
+    });
 
-    var context = {
-        "topic": filterInstance(config.toFilter),
-        "queued": {
-            "topic": filesQueued,
-            "filesToProcess": expectFiles(config.toProcess),
-            "filesToRead": expectFiles(config.toRead || config.toProcess)
-        }
-    };
+    describe("collect()", function () {
+        var instance;
+        before(function () {
+            instance = new LessCluster({
+                "directory": importsDir
+            });
+        });
 
-    return context;
-}
+        it("_getDestinationPath()", function () {
+            var actually = instance._getDestinationPath(addImportsDir('base.less'));
+            var expected = addImportsDir('base.css');
+            actually.should.equal(expected);
+        });
 
-suite.addBatch({
-    "Unfiltered": filtersOutput({
-        "toProcess": [
-            "_variables.less",
-            "base.less",
-            "modules/child.less",
-            "modules/parent.less",
-            "modules/solo.less",
-            "themes/fancy.less",
-            "themes/simple.less"
-        ]
-    }),
-    "Filtering": {
-        "[base.less]": filtersOutput({
+        it("_getRelativePath()", function () {
+            var actually = instance._getRelativePath(__dirname + '/fixtures');
+            var expected = 'test/fixtures';
+            actually.should.equal(expected);
+        });
+        it("_getGlobPattern()", function () {
+            var actually = instance._getGlobPattern('foo');
+            var expected = 'foo/' + instance.options.match;
+            actually.should.equal(expected);
+        });
+        it("_getLessExtension()", function () {
+            instance._getLessExtension('foo/bar.less').should.equal('foo/bar.less');
+            instance._getLessExtension('baz/qux').should.equal('baz/qux.less');
+        });
+        it("_filterCSSImports()", function () {
+            instance._filterCSSImports('foo/bar.less').should.be.true;
+            instance._filterCSSImports('baz/qux.css').should.be.false;
+        });
+        it("_parseImports()", function () {
+            // console.error("TODO");
+        });
+        it("_finishCollect()", function () {
+            // console.error("TODO");
+        });
+
+        describe("when executed", function () {
+            var cb = {};
+            before(function (done) {
+                instance.collect(function (err, data) {
+                    cb.err = err;
+                    cb.data = data;
+                    done();
+                });
+            });
+
+            it("does not error", function () {
+                should.not.exist(cb.err);
+            });
+            it("provides data object", function () {
+                should.exist(cb.data);
+                cb.data.should.be.an('object');
+            });
+            it("finds all files successfully", function () {
+                cb.data.should.have.keys([
+                    addImportsDir("_variables.less"),
+                    addImportsDir("base.less"),
+                    addImportsDir("modules/child.less"),
+                    addImportsDir("modules/parent.less"),
+                    addImportsDir("modules/solo.less"),
+                    addImportsDir("themes/fancy.less"),
+                    addImportsDir("themes/simple.less")
+                ]);
+            });
+        });
+    });
+
+    describe("unfiltered", function () {
+        filtersOutput("default output", {
+            "toProcess": [
+                "_variables.less",
+                "base.less",
+                "modules/child.less",
+                "modules/parent.less",
+                "modules/solo.less",
+                "themes/fancy.less",
+                "themes/simple.less"
+            ]
+        });
+    });
+
+    describe("filtering", function () {
+        filtersOutput("[base.less]", {
             "toFilter" : ["base.less"],
             "toProcess": ["base.less"],
             "toRead"   : [
@@ -276,8 +192,8 @@ suite.addBatch({
                 "themes/fancy.less",
                 "themes/simple.less"
             ]
-        }),
-        "[modules/parent.less]": filtersOutput({
+        });
+        filtersOutput("[modules/parent.less]", {
             "toFilter" : ["modules/parent.less"],
             "toProcess": ["modules/parent.less"],
             "toRead"   : [
@@ -288,8 +204,8 @@ suite.addBatch({
                 "themes/fancy.less",
                 "themes/simple.less"
             ]
-        }),
-        "[_variables.less]": filtersOutput({
+        });
+        filtersOutput("[_variables.less]", {
             "toFilter" : ["_variables.less"],
             "toProcess": [
                 "_variables.less"
@@ -306,8 +222,8 @@ suite.addBatch({
                 "themes/fancy.less",
                 "themes/simple.less"
             ]
-        }),
-        "[themes/simple.less]": filtersOutput({
+        });
+        filtersOutput("[themes/simple.less]", {
             "toFilter" : ["themes/simple.less"],
             "toProcess": ["themes/simple.less"],
             "toRead"   : [
@@ -315,13 +231,92 @@ suite.addBatch({
                 "modules/child.less",
                 "themes/simple.less"
             ]
-        }),
-        "[modules/solo.less]": filtersOutput({
+        });
+        filtersOutput("[modules/solo.less]", {
             "toFilter" : ["modules/solo.less"],
             "toProcess": ["modules/solo.less"],
             "toRead"   : ["modules/solo.less"]
-        })
-    }
+        });
+    });
 });
 
-suite["export"](module);
+function addImportsDir(relativePath) {
+    if (Array.isArray(relativePath)) {
+        return relativePath.map(addImportsDir);
+    }
+    return path.join(importsDir, relativePath);
+}
+
+function removeImportsDir(relativePath) {
+    if (Array.isArray(relativePath)) {
+        return relativePath.map(removeImportsDir);
+    }
+    return relativePath.replace(importsDir, '');
+}
+
+function expectFiles(subtitle, results, expected) {
+    // creates a new context within the currently executing suite
+    describe(subtitle, function () {
+        /*jshint laxbreak:true */
+        var testLengthName = expected.length
+            ? "has " + expected.length + " item"
+            : "has no items";
+        if (expected.length > 1) {
+            testLengthName += "s";
+        }
+
+        it(testLengthName, function () {
+            var actually = results[subtitle];
+            // console.error(JSON.stringify(actually, null, 4));
+            actually.should.have.length(expected.length);
+        });
+
+        it("matches all files", function () {
+            var actually = results[subtitle];
+            var absolutized = expected.map(addImportsDir);
+            actually.should.eql(absolutized);
+        });
+
+        expected.forEach(function (relativePath, i) {
+            it(relativePath, function () {
+                var actually = results[subtitle];
+                should.exist(actually[i]);
+                actually[i].should.equal(addImportsDir(relativePath));
+            });
+        });
+    });
+}
+
+function filtersOutput(title, config) {
+    // create top-level context
+    describe(title, function () {
+        var instance;
+        var results = {};
+
+        before(function (done) {
+            var relativePaths = config.toFilter;
+            var instanceConfig = {
+                "directory": importsDir
+            };
+
+            if (relativePaths && relativePaths.length) {
+                instanceConfig._files = relativePaths.map(function (p) {
+                    return path.join(importsDir, p);
+                });
+            }
+
+            instance = new LessCluster(instanceConfig);
+
+            instance.once("start", function (toProcess, toRead) {
+                results.filesToProcess = toProcess;
+                results.filesToRead = toRead;
+                done();
+            });
+
+            instance.collect();
+        });
+
+        expectFiles("filesToProcess", results, config.toProcess);
+        expectFiles("filesToRead", results, config.toRead || config.toProcess);
+    });
+}

@@ -1,122 +1,117 @@
+/*global describe, it, before, beforeEach, after, afterEach, chai, should, sinon */
 /**
 Tests for the file reader
 **/
-var assert = require('assert');
-var vows = require('vows');
-
 var readFiles = require('../lib/read-files');
-var suite = vows.describe('FileReader');
 
-suite.addBatch({
-    "options": {
-        "files should be required": function () {
-            assert.throws(function () {
+describe("ReadFiles", function () {
+    /*jshint expr:true */
+
+    describe("option", function () {
+        it("'files' should be required", function () {
+            should.Throw(function () {
                 readFiles.FileReader();
             }, "Must pass an array of files to read.");
-        },
-        "files should be stored in property": function () {
-            var instance = new readFiles.FileReader(['a']);
-
-            assert.ok(instance.hasOwnProperty('files'));
-            assert.strictEqual(instance.files.length, 1);
-            assert.strictEqual(instance.files[0], 'a');
-        },
-        "encoding, batchCount, and callback should be optional": function () {
-            assert.doesNotThrow(function () {
+        });
+        it("'encoding', 'batchCount', and 'callback' should be optional", function () {
+            should.not.Throw(function () {
                 readFiles.FileReader(['a']);
             });
-        },
-        "encoding should default to 'utf8'": function () {
+        });
+        it("'files' should be stored in property", function () {
             var instance = new readFiles.FileReader(['a']);
-
-            assert.ok(instance.hasOwnProperty('encoding'));
-            assert.strictEqual(instance.encoding, 'utf8');
-        },
-        "batchCount should default to 100": function () {
+            instance.should.have.property('files')
+                .that.deep.equals(['a']);
+        });
+        describe("default", function () {
             var instance = new readFiles.FileReader(['a']);
+            it("'encoding' should be 'utf8'", function () {
+                instance.should.have.property('encoding', 'utf8');
+            });
+            it("'batchCount' should be 100", function () {
+                instance.should.have.property('batchCount', 100);
+            });
+            it("'callback' should be a noop", function () {
+                instance.should.have.property('callback', readFiles.FileReader.noop);
+            });
+        });
+    });
 
-            assert.ok(instance.hasOwnProperty('batchCount'));
-            assert.strictEqual(instance.batchCount, 100);
-        },
-        "callback should default to noop": function () {
-            var instance = new readFiles.FileReader(['a']);
+    describe("constructor", function () {
+        describe("called with (files)", function () {
+            var topic = readFiles([]);
+            it("returns instance", function () {
+                topic.should.be.instanceof(readFiles.FileReader);
+            });
+        });
+        describe("called with (files, cb)", function () {
+            var result = {};
+            before(function (done) {
+                readFiles([], function (err, data) {
+                    result.err = err;
+                    result.data = data;
+                    done();
+                });
+            });
+            it("should not error", function () {
+                should.not.exist(result.err);
+            });
+            it("should return empty data", function () {
+                should.exist(result.data);
+                result.data.should.deep.equal({});
+            });
+        });
+        describe("called with (files, options, cb)", function () {
+            var topic = readFiles([], { batchCount: 1 }, function () {});
+            it("should preserve options", function () {
+                topic.batchCount.should.equal(1);
+            });
+        });
 
-            assert.ok(instance.hasOwnProperty('callback'));
-            assert.strictEqual(instance.callback, readFiles.FileReader.noop);
-        }
-    }
-});
-
-suite.addBatch({
-    "readFiles": {
-        "called with (files)": {
-            topic: function () {
-                return readFiles([]);
-            },
-            "returns instance": function (topic) {
-                assert.instanceOf(topic, readFiles.FileReader);
-            }
-        },
-        "called with (files, cb)": {
-            topic: function () {
-                readFiles([], this.callback);
-            },
-            "should not error": function (err, data) {
-                assert.ifError(err);
-            },
-            "should return empty data": function (err, data) {
-                assert.deepEqual(data, {});
-            }
-        },
-        "called with (files, options, cb)": {
-            topic: function () {
-                return readFiles([], { batchCount: 1 }, function () {});
-            },
-            "should preserve options": function (topic) {
-                assert.strictEqual(topic.batchCount, 1);
-            }
-        },
-
-        "with missing files": {
-            topic: function () {
+        describe("with missing files", function () {
+            var result = {};
+            before(function (done) {
                 var basedir = __dirname + '/fixtures/file-reader/';
-                readFiles([basedir + 'z.less'], this.callback);
-            },
-            "should send error to callback": function (err, data) {
-                assert.isObject(err);
-                assert.isUndefined(data);
-            }
-        },
+                readFiles([basedir + 'z.less'], function (err, data) {
+                    result.err = err;
+                    result.data = data;
+                    done();
+                });
+            });
+            it("should send error to callback", function () {
+                should.exist(result.err);
+                should.not.exist(result.data);
+            });
+        });
 
-        "with valid files": {
-            topic: function () {
-                var basedir = __dirname + '/fixtures/file-reader/';
-                return [
-                    basedir + 'a.less',
-                    basedir + 'b.less',
-                    basedir + 'c.less'
-                ];
-            },
-            "asynchronously collected": {
-                topic: function (inputFiles) {
-                    readFiles(inputFiles.slice(), this.callback.bind(this));
-                },
-                "should succeed": function (err, data) {
-                    assert.ifError(err);
-
-                    var inputFiles = this.context.topics.pop(); // hacktastic!
+        describe("with valid files", function () {
+            var basedir = __dirname + '/fixtures/file-reader/';
+            var inputFiles = [
+                basedir + 'a.less',
+                basedir + 'b.less',
+                basedir + 'c.less'
+            ];
+            describe("asynchronously collected", function () {
+                var result = {};
+                before(function (done) {
+                    readFiles(inputFiles.slice(), function (err, data) {
+                        result.err = err;
+                        result.data = data;
+                        done();
+                    });
+                });
+                it("should succeed", function () {
+                    should.not.exist(result.err);
 
                     // must sort to ensure async order matches input
-                    Object.keys(data).sort().forEach(function (datum, idx) {
+                    Object.keys(result.data).sort().forEach(function (datum, idx) {
                         // the test fixtures are empty files
-                        assert.ok(data[datum] === '');
+                        result.data[datum].should.equal('');
                         // the keys are the filepaths
-                        assert.strictEqual(datum, inputFiles[idx]);
+                        datum.should.equal(inputFiles[idx]);
                     });
-                }
-            }
-        }
-    }
+                });
+            });
+        });
+    });
 });
-
-suite["export"](module);

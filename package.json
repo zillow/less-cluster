@@ -6,8 +6,21 @@
   "bin": {
     "less-cluster": "./bin/less-cluster"
   },
+  "jshintConfig": {
+    "curly": true,
+    "eqeqeq": true,
+    "forin": true,
+    "immed": true,
+    "newcap": true,
+    "noarg": true,
+    "noempty": true,
+    "undef": true,
+    "node": true
+  },
   "scripts": {
-    "test": "istanbul test --print both vows -- --spec test/*.js"
+    "pretest": "jshint bin lib test",
+    "test": "istanbul test --print both ./node_modules/mocha/bin/_mocha",
+    "posttest": "istanbul check-coverage --statements 60 --functions 50 --branches 50 --lines 60"
   },
   "repository": {
     "type": "git",
@@ -23,8 +36,12 @@
   "author": "Daniel Stockman <daniels@zillow.com>",
   "license": "MIT",
   "devDependencies": {
-    "istanbul": "~0.1.37",
-    "vows": "~0.7.0"
+    "chai": "~1.8.0",
+    "istanbul": "~0.1.44",
+    "jshint": "~2.1.11",
+    "mocha": "~1.13.0",
+    "sinon": "~1.7.3",
+    "sinon-chai": "~2.4.0"
   },
   "dependencies": {
     "nopt": "~2.1.1",

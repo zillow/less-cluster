@@ -1,113 +1,143 @@
+/*global describe, it, before, beforeEach, after, afterEach, chai, should, sinon */
 /**
 Tests for the logger mixin
 **/
-var assert = require('assert');
 var inherits = require('util').inherits;
-var vows = require('vows');
-
 var Logger = require('../lib/logger');
 
-vows.describe('Logger').addBatch({
-    "##mixin()": {
-        topic: function () {
-            function Super() {}
-            Super.prototype.log = function () {
-                this.logged = "super";
-            };
+describe('Logger', function () {
+    /*jshint expr:true */
 
-            function Klass(options) {
-                Super.call(this);
-                Logger.call(this, options);
-            }
+    describe("##mixin()", function () {
+        function Super() {}
+        Super.prototype.log = function () {
+            this.logged = "super";
+        };
 
-            inherits(Klass, Super);
-            Logger.mixin(Klass);
+        function Klass(options) {
+            Super.call(this);
+            Logger.call(this, options);
+        }
 
-            return {
-                Super: Super,
-                Klass: Klass
-            };
-        },
-        "should provide all methods": function (topic) {
+        inherits(Klass, Super);
+        Logger.mixin(Klass);
+
+        var topic = {
+            Super: Super,
+            Klass: Klass
+        };
+
+        it("should provide all methods", function () {
             var instance = new topic.Klass();
-            assert.ok(instance.debug);
-            assert.ok(instance.log);
-            assert.ok(instance.warn);
-            assert.ok(instance.error);
-        },
-        "should shadow superclass methods": function (topic) {
+            instance.should.respondTo('debug');
+            instance.should.respondTo('log');
+            instance.should.respondTo('warn');
+            instance.should.respondTo('error');
+        });
+        it("should shadow superclass methods", function () {
+            var consoleLog = sinon.stub(console, "log");
             var instance = new topic.Klass();
             instance.log();
-            assert.strictEqual(instance.logged, undefined);
-        }
-    },
-    "debug()": {
-        topic: new Logger(),
-        "should NOT emit without --verbose": function (topic) {
+            should.not.exist(instance.logged);
+            consoleLog.should.have.been.calledOnce;
+            consoleLog.restore();
+        });
+    });
+
+    describe("debug()", function () {
+        it("should NOT emit without --verbose", function () {
+            var consoleLog = sinon.stub(console, "log");
+            var topic = new Logger();
             topic.debug("FAIL");
-        },
-        "when --verbose": {
-            topic: new Logger({
-                verbose: true
-            }),
-            "should emit": function (topic) {
+            consoleLog.should.not.have.been.called;
+            consoleLog.restore();
+        });
+        describe("when --verbose", function () {
+            it("should emit", function () {
+                var consoleLog = sinon.stub(console, "log");
+                var topic = new Logger({
+                    verbose: true
+                });
                 topic.debug("PASS");
-            }
-        }
-    },
+                consoleLog.should.have.been.calledWith("PASS");
+                consoleLog.restore();
+            });
+        });
+    });
 
-    "log()": {
-        topic: new Logger(),
-        "should emit": function (topic) {
+    describe("log()", function () {
+        it("should emit", function () {
+            var consoleLog = sinon.stub(console, "log");
+            var topic = new Logger();
             topic.log("PASS");
-        },
-        "when --quiet": {
-            topic: new Logger({
-                quiet: true
-            }),
-            "should NOT emit": function (topic) {
-                topic.log("FAIL");
-            }
-        }
-    },
-
-    "warn()": {
-        topic: new Logger(),
-        "should emit": function (topic) {
-            topic.warn("PASS");
-        },
-        "when --quiet": {
-            topic: new Logger({
-                quiet: true
-            }),
-            "should NOT emit": function (topic) {
-                topic.warn("FAIL");
-            }
-        }
-    },
-
-    "error()": {
-        topic: new Logger(),
-        "should emit": function (topic) {
-            topic.error("PASS");
-        },
-        "when": {
-            "--quiet": {
-                topic: new Logger({
+            consoleLog.should.have.been.calledWith("PASS");
+            consoleLog.restore();
+        });
+        describe("when --quiet", function () {
+            it("should NOT emit", function () {
+                var consoleLog = sinon.stub(console, "log");
+                var topic = new Logger({
                     quiet: true
-                }),
-                "should emit": function (topic) {
+                });
+                topic.log("FAIL");
+                consoleLog.should.not.have.been.called;
+                consoleLog.restore();
+            });
+        });
+    });
+
+    describe("warn()", function () {
+        it("should emit", function () {
+            var consoleError = sinon.stub(console, "error");
+            var topic = new Logger();
+            topic.warn("PASS");
+            consoleError.should.have.been.calledWith("PASS");
+            consoleError.restore();
+        });
+        describe("when --quiet", function () {
+            it("should NOT emit", function () {
+                var consoleError = sinon.stub(console, "error");
+                var topic = new Logger({
+                    quiet: true
+                });
+                topic.warn("FAIL");
+                consoleError.should.not.have.been.called;
+                consoleError.restore();
+            });
+        });
+    });
+
+    describe("error()", function () {
+        it("should emit", function () {
+            var consoleError = sinon.stub(console, "error");
+            var topic = new Logger();
+            topic.error("PASS");
+            consoleError.should.have.been.calledWith("PASS");
+            consoleError.restore();
+        });
+        describe("when", function () {
+            describe("--quiet", function () {
+                it("should emit", function () {
+                    var consoleError = sinon.stub(console, "error");
+                    var topic = new Logger({
+                        quiet: true
+                    });
                     topic.error("PASS");
-                }
-            },
-            "--silent": {
-                topic: new Logger({
-                    silent: true
-                }),
-                "should NOT emit": function (topic) {
+                    consoleError.should.have.been.calledWith("PASS");
+                    consoleError.restore();
+                });
+            });
+            describe("--silent", function () {
+                it("should NOT emit", function () {
+                    var consoleError = sinon.stub(console, "error");
+                    var topic = new Logger({
+                        silent: true
+                    });
                     topic.error("FAIL");
-                }
-            }
-        }
-    }
-})["export"](module);
+                    consoleError.should.not.have.been.called;
+                    consoleError.restore();
+                });
+            });
+        });
+    });
+});

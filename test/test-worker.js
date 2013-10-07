@@ -1,102 +1,96 @@
+/*global describe, it, before, beforeEach, after, afterEach, chai, should, sinon */
 /**
 Tests for the worker
 **/
-var assert = require('assert');
-var vows = require('vows');
-
 var LessCluster = require('../');
 var ClusterWorker = LessCluster.Worker;
 
-vows.describe('ClusterWorker').addBatch({
-    "factory": {
-        topic: function () {
+describe("ClusterWorker", function () {
+    /*jshint expr:true */
+
+    describe("factory", function () {
+        it("should instantiate without 'new'", function () {
             /*jshint newcap: false */
-            return ClusterWorker();
-        },
-        "should instantiate without 'new'": function (topic) {
-            assert.ok(topic instanceof ClusterWorker);
-        }
-    },
-    "instance": {
-        topic: function () {
-            return new ClusterWorker();
-        },
-        "should instantiate as constructor": function (topic) {
-            assert.ok(topic instanceof ClusterWorker);
-        }
-    },
+            var instance = ClusterWorker();
+            instance.should.be.instanceof(ClusterWorker);
+        });
+    });
+    describe("instance", function () {
+        it("should instantiate as constructor", function () {
+            var instance = new ClusterWorker();
+            instance.should.be.instanceof(ClusterWorker);
+        });
+    });
 
-    "event handling": {
-        topic: new ClusterWorker(),
+    describe("event handling", function () {
+        var instance = new ClusterWorker();
 
-        "should listen to 'message' on process": function (instance) {
+        it("should listen to 'message' on process", function () {
             // workers listen to events on process
-            assert.ok(process.listeners('message').length);
-        },
-        "should pass lifecycle events through to sendMaster": function (instance) {
-            // TODO: sinon.js FFS
-            var count = 0;
-            instance.sendMaster = function () {
-                count += 1;
-            };
+            process.listeners('message').should.have.length.above(0);
+        });
+        it("should pass lifecycle events through to sendMaster", function () {
+            var consoleError = sinon.stub(console, "error");
+            var sendMaster = sinon.stub(instance, "sendMaster");
 
             // 'emit' returns true if there were listeners
-            assert.ok(instance.emit('drain'));
-            assert.ok(instance.emit('error'));
-            assert.ok(instance.emit('ready'));
+            instance.emit('drain').should.be.true;
+            instance.emit('error').should.be.true;
+            instance.emit('ready').should.be.true;
 
-            assert.strictEqual(count, 3);
-        }
-    },
+            sendMaster.should.have.been.calledThrice;
+            consoleError.should.have.been.calledOnce; // from emit('error')
 
-    "methods": {
-        topic: function () {
-            return new ClusterWorker();
-        },
+            sendMaster.restore();
+            consoleError.restore();
+        });
+    });
 
-        "dispatchMessage() should receive message object with command": function (instance) {
-            assert.throws(function () {
-                instance.dispatchMessage();
-            }, "Message must have command");
+    describe("methods", function () {
+        describe("dispatchMessage()", function () {
+            var instance = new ClusterWorker();
 
-            assert.throws(function () {
-                instance.dispatchMessage({
-                    foo: 'foo'
-                });
-            }, "Message must have command");
-        },
-        "dispatchMessage() should distinguish invalid commands": function (instance) {
-            assert.throws(function () {
-                instance.dispatchMessage({
-                    cmd: 'missing'
-                });
-            }, "Message command invalid");
-        },
-        "dispatchMessage() should execute build command": function (instance) {
-            instance.build = function (msg) {
-                assert.deepEqual(msg, {
-                    cmd: 'build'
-                });
-            };
-
-            assert.doesNotThrow(function () {
-                instance.dispatchMessage({
-                    cmd: 'build'
-                });
+            it("should require message object", function () {
+                should.Throw(function () {
+                    instance.dispatchMessage();
+                }, "Message must have command");
             });
-        },
-        "dispatchMessage() should execute start command": function (instance) {
-            instance.start = function (msg) {
-                assert.deepEqual(msg, {
-                    cmd: 'start'
-                });
-            };
-
-            assert.doesNotThrow(function () {
-                instance.dispatchMessage({
-                    cmd: 'start'
-                });
+            it("should require message object with 'cmd'", function () {
+                should.Throw(function () {
+                    instance.dispatchMessage({
+                        foo: 'foo'
+                    });
+                }, "Message must have command");
             });
-        }
-    }
-})["export"](module);
+            it("should reject invalid commands", function () {
+                should.Throw(function () {
+                    instance.dispatchMessage({
+                        cmd: 'missing'
+                    });
+                }, "Message command invalid");
+            });
+            it("should execute build command", function () {
+                var build = sinon.stub(instance, "build");
+                var msg = {
+                    cmd: "build"
+                };
+
+                instance.dispatchMessage(msg);
+
+                build.should.have.been.calledWith(msg);
+                build.restore();
+            });
+            it("should execute start command", function () {
+                var start = sinon.stub(instance, "start");
+                var msg = {
+                    cmd: "start"
+                };
+
+                instance.dispatchMessage(msg);
+
+                start.should.have.been.calledWith(msg);
+                start.restore();
+            });
+        });
+    });
+});

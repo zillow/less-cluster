@@ -1,2 +1,3 @@
---ui exports
---reporter nyan
+--ui bdd
+--reporter spec
+--require test/common
