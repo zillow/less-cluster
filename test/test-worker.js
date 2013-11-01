@@ -2,10 +2,12 @@
 /**
 Tests for the worker
 **/
+var cluster = require('cluster');
+
 var LessCluster = require('../');
 var ClusterWorker = LessCluster.Worker;
 
-describe("ClusterWorker", function () {
+describe("Cluster Worker", function () {
     /*jshint expr:true */
 
     describe("factory", function () {
@@ -19,6 +21,29 @@ describe("ClusterWorker", function () {
         it("should instantiate as constructor", function () {
             var instance = new ClusterWorker();
             instance.should.be.instanceof(ClusterWorker);
+        });
+
+        it("should not overwrite log prefix", function () {
+            var instance = new ClusterWorker();
+            instance.should.have.property("_logPrefix", "wrapper");
+        });
+
+        describe("when cluster.isWorker", function () {
+            before(function () {
+                cluster.isWorker = true;
+                cluster.worker = {
+                    id: 1
+                };
+            });
+            after(function () {
+                cluster.isWorker = null;
+                cluster.worker = null;
+            });
+
+            it("should set log prefix", function () {
+                var instance = new ClusterWorker();
+                instance.should.have.property("_logPrefix", "worker[1]");
+            });
         });
     });
 
@@ -90,6 +115,47 @@ describe("ClusterWorker", function () {
 
                 start.should.have.been.calledWith(msg);
                 start.restore();
+            });
+        });
+
+        describe("sendMaster()", function () {
+            before(function () {
+                cluster.isWorker = true;
+                cluster.worker = {
+                    id: 1
+                };
+            });
+            after(function () {
+                cluster.isWorker = null;
+                cluster.worker = null;
+            });
+
+            describe("when process disconnected", function () {
+                it("should not error", function () {
+                    var instance = new ClusterWorker();
+                    /*jshint immed:false */
+                    should.not.Throw(function () {
+                        instance.sendMaster("foo");
+                    });
+                });
+            });
+
+            describe("when process connected", function () {
+                beforeEach(function () {
+                    process.connected = true;
+                    process.send = sinon.stub();
+                });
+                afterEach(function () {
+                    process.connected = null;
+                    process.send = null;
+                });
+
+                it("should send message", function () {
+                    var instance = new ClusterWorker();
+                    instance.sendMaster("foo");
+                    process.send.should.have.been.calledOnce;
+                    process.send.should.have.been.calledWith({ evt: "foo", id: 1 });
+                });
             });
         });
     });
