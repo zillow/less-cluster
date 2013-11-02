@@ -128,12 +128,8 @@ describe("LessCluster", function () {
             instance._filterCSSImports('foo/bar.less').should.be.true;
             instance._filterCSSImports('baz/qux.css').should.be.false;
         });
-        it("_parseImports()", function () {
-            // console.error("TODO");
-        });
-        it("_finishCollect()", function () {
-            // console.error("TODO");
-        });
+        it("_parseImports()");
+        it("_finishCollect()");
 
         describe("when executed", function () {
             var cb = {};
