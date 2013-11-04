@@ -154,9 +154,45 @@ describe("Cluster Master", function () {
         });
 
         describe("runQueue()", function () {
-            it("should enqueue all workers");
-            it("should not error if no files available to build");
-            it("should cause all workers to build a file, if available");
+            beforeEach(function () {
+                cluster.workers = {
+                    "1": {},
+                    "2": {}
+                };
+            });
+            afterEach(function () {
+                cluster.workers = null;
+            });
+
+            it("should enqueue all workers", function () {
+                sinon.stub(this.instance, "getNextFile").returns(false);
+                this.instance.should.not.have.property("running");
+
+                this.instance.runQueue();
+
+                this.instance.should.have.property("running", 0);
+                this.instance.getNextFile.should.have.been.calledTwice;
+            });
+
+            it("should not error if no files available to build", function () {
+                var instance = this.instance;
+                instance.filesToProcess = [];
+                should.not.Throw(function () {
+                    instance.runQueue();
+                });
+            });
+
+            it("should cause all workers to build a file, if available", function () {
+                this.instance.filesToProcess = ["foo", "bar", "baz"];
+                sinon.stub(this.instance, "buildFile");
+
+                this.instance.runQueue();
+
+                this.instance.should.have.property("running", 2);
+                this.instance.buildFile.should.have.been.calledTwice;
+                this.instance.buildFile.should.have.been.calledWith("1", "foo");
+                this.instance.buildFile.should.have.been.calledWith("2", "bar");
+            });
         });
 
         describe("sendWorkers()", function () {
