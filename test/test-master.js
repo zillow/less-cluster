@@ -213,7 +213,7 @@ describe("Cluster Master", function () {
         });
     });
 
-    describe("event handler", function () {
+    describe("Handler", function () {
         beforeEach(function () {
             this.instance = new Master();
             sinon.stub(this.instance, "debug");
