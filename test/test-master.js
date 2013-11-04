@@ -216,6 +216,7 @@ describe("Cluster Master", function () {
     describe("event handler", function () {
         beforeEach(function () {
             this.instance = new Master();
+            sinon.stub(this.instance, "debug");
         });
         afterEach(function () {
             this.instance.destroy();
@@ -280,20 +281,53 @@ describe("Cluster Master", function () {
             beforeEach(function () {
                 this.instance._bindWorkers();
             });
-            // afterEach(function () {});
 
             describe("'drain'", function () {
-                // beforeEach(function () {});
-                // afterEach(function () {});
+                beforeEach(function () {
+                    this.instance.removeAllListeners("empty");
+                    sinon.stub(this.instance, "getNextFile");
+                });
 
-                it("TODO");
+                describe("with files remaining", function () {
+                    it("calls buildFile() with appropriate arguments", function () {
+                        this.instance.getNextFile.returns("foo.less");
+                        sinon.stub(this.instance, "buildFile");
+                        this.instance.emit("drain", 1);
+                        this.instance.buildFile.should.be.calledWith(1, "foo.less");
+                    });
+                });
+
+                describe("with no files remaining", function () {
+                    it("emits 'empty' event", function () {
+                        this.instance.getNextFile.returns(false);
+                        sinon.spy(this.instance, "emit");
+                        this.instance.emit("drain", 1);
+                        this.instance.emit.should.be.calledWith("empty", 1);
+                    });
+                });
             });
 
             describe("'empty'", function () {
-                // beforeEach(function () {});
-                // afterEach(function () {});
+                beforeEach(function () {
+                    this.instance.removeAllListeners("finished");
+                    sinon.spy(this.instance, "emit");
+                });
 
-                it("TODO");
+                describe("with running workers remaining", function () {
+                    it("does not emit 'finished' event", function () {
+                        this.instance.running = 4;
+                        this.instance.emit("empty", 1);
+                        this.instance.emit.should.not.be.calledWith("finished");
+                    });
+                });
+
+                describe("with no running workers remaining", function () {
+                    it("emits 'finished' event", function () {
+                        this.instance.running = 1;
+                        this.instance.emit("empty", 1);
+                        this.instance.emit.should.be.calledWith("finished");
+                    });
+                });
             });
 
             describe("'finished'", function () {
