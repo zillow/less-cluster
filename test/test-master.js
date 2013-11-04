@@ -34,19 +34,23 @@ describe("Cluster Master", function () {
     });
 
     describe("Method", function () {
+        beforeEach(function () {
+            this.instance = new Master();
+        });
+        afterEach(function () {
+            this.instance = null;
+        });
+
         describe("destroy()", function () {
             it("should emit 'cleanup'", function (done) {
-                var instance = new Master();
-
-                instance.once("cleanup", done);
-                instance.destroy();
+                this.instance.once("cleanup", done);
+                this.instance.destroy();
             });
 
             it("should exit with error code when provided", function () {
-                var instance = new Master();
                 sinon.stub(process, "exit");
 
-                instance.destroy(1);
+                this.instance.destroy(1);
 
                 process.exit.should.have.been.calledWithExactly(1);
                 process.exit.restore();
@@ -57,12 +61,10 @@ describe("Cluster Master", function () {
             beforeEach(function () {
                 sinon.stub(cluster, "once");
                 sinon.stub(cluster, "setupMaster");
-                this.instance = new Master();
             });
             afterEach(function () {
                 cluster.once.restore();
                 cluster.setupMaster.restore();
-                this.instance = null;
             });
 
             it("should hook cluster 'setup' event", function () {
@@ -83,11 +85,10 @@ describe("Cluster Master", function () {
         describe("forkWorkers()", function () {
             beforeEach(function () {
                 sinon.stub(cluster, "fork");
-                this.instance = new Master({ workers: 1 });
+                this.instance.options.workers = 1;
             });
             afterEach(function () {
                 cluster.fork.restore();
-                this.instance = null;
             });
 
             it("should fork configured number of workers", function () {
@@ -102,13 +103,11 @@ describe("Cluster Master", function () {
 
         describe("run()", function () {
             beforeEach(function () {
-                this.instance = new Master();
                 sinon.stub(this.instance, "setupMaster");
                 sinon.stub(this.instance, "forkWorkers");
             });
             afterEach(function () {
                 this.instance.emit("cleanup");
-                this.instance = null;
             });
 
             it("should not proceed when cluster.isMaster == false", function () {
