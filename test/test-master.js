@@ -139,8 +139,18 @@ describe("Cluster Master", function () {
         });
 
         describe("getNextFile()", function () {
-            it("should return first file in the list, if available");
-            it("should return false if no files to process remaining");
+            it("should return first file in the list, if available", function () {
+                this.instance.filesToProcess = ["foo.less", "bar.less"];
+                var result = this.instance.getNextFile();
+                result.should.equal("foo.less");
+            });
+
+            it("should return falsey if no files to process remaining", function () {
+                this.instance.filesToProcess = ["foo.less"];
+                this.instance.getNextFile(); // remove first entry
+                var result = this.instance.getNextFile();
+                result.should.not.be.ok;
+            });
         });
 
         describe("runQueue()", function () {
