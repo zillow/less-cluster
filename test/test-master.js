@@ -339,5 +339,55 @@ describe("Cluster Master", function () {
                 });
             });
         });
+
+        describe("for message event", function () {
+            describe("with malformed message", function () {
+                it("logs an error when 'evt' property missing", function () {
+                    sinon.stub(this.instance, "error");
+                    var badMessage = { foo: "foo" };
+                    this.instance.onMessage(badMessage);
+                    this.instance.error.should.be.calledWith(badMessage);
+                });
+            });
+
+            describe("'ready'", function () {
+                beforeEach(function () {
+                    this.instance.readied = 0;
+                });
+
+                it("tracks worker readiness", function () {
+                    this.instance.onMessage({ evt: "ready" });
+                    this.instance.readied.should.equal(1);
+                });
+
+                it("runs queue when all workers are ready", function () {
+                    sinon.stub(this.instance, "runQueue");
+                    this.instance.options.workers = 1;
+                    this.instance.onMessage({ evt: "ready" });
+                    this.instance.runQueue.should.be.calledOnce;
+                });
+            });
+
+            describe("'drain'", function () {
+                it("emits 'drain' on instance", function () {
+                    sinon.stub(this.instance, "emit");
+                    this.instance.onMessage({ evt: "drain", id: 1 });
+                    this.instance.emit.should.be.calledWith("drain", 1);
+                });
+            });
+
+            describe("'error'", function () {
+                it("calls process.exit with error code 1", function () {
+                    sinon.stub(process, "exit");
+                    sinon.stub(cluster, "disconnect").yields();
+
+                    this.instance.onMessage({ evt: "error" });
+
+                    process.exit.should.be.calledWith(1);
+                    process.exit.restore();
+                    cluster.disconnect.restore();
+                });
+            });
+        });
     });
 });
