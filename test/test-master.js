@@ -224,32 +224,70 @@ describe("Cluster Master", function () {
         });
 
         describe("for cluster event", function () {
-            describe("'fork'", function () {
-                // beforeEach(function () {});
-                // afterEach(function () {});
+            beforeEach(function () {
+                this.instance._bindCluster();
+                this.worker = {
+                    on: sinon.stub(),
+                    id: 1
+                };
+            });
+            afterEach(function () {
+                this.worker = null;
+            });
 
-                it("TODO");
+            describe("'fork'", function () {
+                it("should log activity", function () {
+                    cluster.emit("fork", this.worker);
+                    this.instance.debug.should.be.calledWith("worker[1] forked.");
+                });
             });
 
             describe("'online'", function () {
-                // beforeEach(function () {});
-                // afterEach(function () {});
+                it("should log activity", function () {
+                    cluster.emit("online", this.worker);
+                    this.instance.debug.should.be.calledWith("worker[1] online.");
+                });
 
-                it("TODO");
+                it("should bind worker 'message' event", function () {
+                    cluster.emit("online", this.worker);
+                    this.worker.on.should.be.calledWith("message", sinon.match.func);
+                });
             });
 
             describe("'disconnect'", function () {
-                // beforeEach(function () {});
-                // afterEach(function () {});
-
-                it("TODO");
+                it("should log activity", function () {
+                    cluster.emit("disconnect", this.worker);
+                    this.instance.debug.should.be.calledWith("worker[1] disconnected.");
+                });
             });
 
             describe("'exit'", function () {
-                // beforeEach(function () {});
-                // afterEach(function () {});
+                beforeEach(function () {
+                    sinon.stub(cluster, "fork");
+                });
+                afterEach(function () {
+                    cluster.fork.restore();
+                });
 
-                it("TODO");
+                it("should log activity", function () {
+                    this.worker.suicide = true;
+                    cluster.emit("exit", this.worker);
+                    this.instance.debug.should.be.calledWith("worker[1] exited.");
+                });
+
+                it("should not fork another worker when exit was a suicide", function () {
+                    this.worker.suicide = true;
+                    cluster.emit("exit", this.worker);
+                    cluster.fork.should.not.be.called;
+                });
+
+                it("should fork another worker when exit was unexpected", function () {
+                    sinon.stub(this.instance, "warn");
+                    this.worker.suicide = false;
+                    cluster.emit("exit", this.worker);
+                    cluster.fork.should.be.calledOnce;
+                    this.instance.warn.should.be.calledOnce;
+                });
             });
         });
 
