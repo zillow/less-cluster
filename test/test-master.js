@@ -160,7 +160,20 @@ describe("Cluster Master", function () {
         });
 
         describe("sendWorkers()", function () {
-            it("should send payload to each worker");
+            it("should send payload to each worker", function () {
+                var payload = { foo: "foo" };
+                cluster.workers = {
+                    "1": { send: sinon.stub() },
+                    "2": { send: sinon.stub() }
+                };
+
+                this.instance.sendWorkers(payload);
+
+                cluster.workers["1"].send.should.have.been.calledOnce.and.calledWith(payload);
+                cluster.workers["2"].send.should.have.been.calledOnce.and.calledWith(payload);
+
+                cluster.workers = null;
+            });
         });
 
         describe("startQueue()", function () {
