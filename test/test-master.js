@@ -145,6 +145,16 @@ describe("Cluster Master", function () {
             this.instance = new Master();
             sinon.stub(this.instance, "forkWorkers");
 
+            // spy instance methods to allow execution
+            sinon.spy(this.instance, "on");
+            sinon.spy(this.instance, "removeAllListeners");
+
+            sinon.stub(cluster, "on");
+            sinon.stub(process, "on");
+
+            sinon.stub(cluster, "removeListener");
+            sinon.stub(process, "removeListener");
+
             sinon.stub(cluster, "setupMaster");
             sinon.stub(cluster, "once").yields();
             // calls the "setup" handler immediately
@@ -153,15 +163,16 @@ describe("Cluster Master", function () {
             cluster.setupMaster.restore();
             cluster.once.restore();
 
-            this.instance.emit("cleanup");
+            cluster.on.restore();
+            process.on.restore();
+
+            cluster.removeListener.restore();
+            process.removeListener.restore();
+
             this.instance = null;
         });
 
         it("should bind after setup", function () {
-            sinon.spy(cluster, "on");
-            sinon.spy(process, "on");
-            sinon.spy(this.instance, "on");
-
             this.instance.run();
 
             cluster.on.callCount.should.equal(4);
@@ -179,17 +190,9 @@ describe("Cluster Master", function () {
             this.instance.on.should.be.calledWith("drain",    sinon.match.func);
             this.instance.on.should.be.calledWith("empty",    sinon.match.func);
             this.instance.on.should.be.calledWith("finished", sinon.match.func);
-
-            cluster.on.restore();
-            process.on.restore();
-            this.instance.on.restore();
         });
 
         it("should unbind after cleanup", function () {
-            sinon.spy(cluster, "removeListener");
-            sinon.spy(process, "removeListener");
-            sinon.spy(this.instance, "removeAllListeners");
-
             this.instance.run();
             this.instance.emit("cleanup");
 
@@ -207,10 +210,6 @@ describe("Cluster Master", function () {
             this.instance.removeAllListeners.should.be.calledWith("drain");
             this.instance.removeAllListeners.should.be.calledWith("empty");
             this.instance.removeAllListeners.should.be.calledWith("finished");
-
-            cluster.removeListener.restore();
-            process.removeListener.restore();
-            this.instance.removeAllListeners.restore();
         });
     });
 });
