@@ -327,7 +327,7 @@ describe("Cluster Master", function () {
                 });
 
                 describe("with files remaining", function () {
-                    it("calls buildFile() with appropriate arguments", function () {
+                    it("should call buildFile() with appropriate arguments", function () {
                         this.instance.getNextFile.returns("foo.less");
                         sinon.stub(this.instance, "buildFile");
                         this.instance.emit("drain", 1);
@@ -336,7 +336,7 @@ describe("Cluster Master", function () {
                 });
 
                 describe("with no files remaining", function () {
-                    it("emits 'empty' event", function () {
+                    it("should emit 'empty' event", function () {
                         this.instance.getNextFile.returns(false);
                         sinon.spy(this.instance, "emit");
                         this.instance.emit("drain", 1);
@@ -352,7 +352,7 @@ describe("Cluster Master", function () {
                 });
 
                 describe("with running workers remaining", function () {
-                    it("does not emit 'finished' event", function () {
+                    it("should not emit 'finished' event", function () {
                         this.instance.running = 4;
                         this.instance.emit("empty", 1);
                         this.instance.emit.should.not.be.calledWith("finished");
@@ -360,7 +360,7 @@ describe("Cluster Master", function () {
                 });
 
                 describe("with no running workers remaining", function () {
-                    it("emits 'finished' event", function () {
+                    it("should emit 'finished' event", function () {
                         this.instance.running = 1;
                         this.instance.emit("empty", 1);
                         this.instance.emit.should.be.calledWith("finished");
@@ -380,7 +380,7 @@ describe("Cluster Master", function () {
 
         describe("for message event", function () {
             describe("with malformed message", function () {
-                it("logs an error when 'evt' property missing", function () {
+                it("should log an error when 'evt' property missing", function () {
                     sinon.stub(this.instance, "error");
                     var badMessage = { foo: "foo" };
                     this.instance.onMessage(badMessage);
@@ -393,12 +393,12 @@ describe("Cluster Master", function () {
                     this.instance.readied = 0;
                 });
 
-                it("tracks worker readiness", function () {
+                it("should track worker readiness", function () {
                     this.instance.onMessage({ evt: "ready" });
                     this.instance.readied.should.equal(1);
                 });
 
-                it("runs queue when all workers are ready", function () {
+                it("should run queue when all workers are ready", function () {
                     sinon.stub(this.instance, "runQueue");
                     this.instance.options.workers = 1;
                     this.instance.onMessage({ evt: "ready" });
@@ -407,7 +407,7 @@ describe("Cluster Master", function () {
             });
 
             describe("'drain'", function () {
-                it("emits 'drain' on instance", function () {
+                it("should emit 'drain' on instance", function () {
                     sinon.stub(this.instance, "emit");
                     this.instance.onMessage({ evt: "drain", id: 1 });
                     this.instance.emit.should.be.calledWith("drain", 1);
@@ -415,7 +415,7 @@ describe("Cluster Master", function () {
             });
 
             describe("'error'", function () {
-                it("calls process.exit with error code 1", function () {
+                it("should call process.exit with error code 1", function () {
                     sinon.stub(process, "exit");
                     sinon.stub(cluster, "disconnect").yields();
 
