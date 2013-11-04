@@ -137,6 +137,35 @@ describe("Cluster Master", function () {
                 this.instance.collect.should.have.been.calledOnce;
             });
         });
+
+        describe("getNextFile()", function () {
+            it("should return first file in the list, if available");
+            it("should return false if no files to process remaining");
+        });
+
+        describe("runQueue()", function () {
+            it("should enqueue all workers");
+            it("should not error if no files available to build");
+            it("should cause all workers to build a file, if available");
+        });
+
+        describe("sendWorkers()", function () {
+            it("should send payload to each worker");
+        });
+
+        describe("startQueue()", function () {
+            it("should send commands to workers immediately when not running");
+            it("should wait until finished to send commands to workers, if running");
+            it("should initialize filesToProcess and readied instance properties");
+            it("should pass filesToRead in worker 'start' data, if available");
+            it("should pass filesToProcess in worker 'start' data when filesToRead missing");
+        });
+
+        describe("buildFile()", function () {
+            it("should not send message when worker missing");
+            it("should not send message when fileName missing");
+            it("should send 'build' message to designated worker");
+        });
     });
 
     describe("Events", function () {
