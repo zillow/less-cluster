@@ -212,4 +212,98 @@ describe("Cluster Master", function () {
             this.instance.removeAllListeners.should.be.calledWith("finished");
         });
     });
+
+    describe("event handler", function () {
+        beforeEach(function () {
+            this.instance = new Master();
+        });
+        afterEach(function () {
+            this.instance.destroy();
+            this.instance = null;
+        });
+
+        describe("for cluster event", function () {
+            describe("'fork'", function () {
+                // beforeEach(function () {});
+                // afterEach(function () {});
+
+                it("TODO");
+            });
+
+            describe("'online'", function () {
+                // beforeEach(function () {});
+                // afterEach(function () {});
+
+                it("TODO");
+            });
+
+            describe("'disconnect'", function () {
+                // beforeEach(function () {});
+                // afterEach(function () {});
+
+                it("TODO");
+            });
+
+            describe("'exit'", function () {
+                // beforeEach(function () {});
+                // afterEach(function () {});
+
+                it("TODO");
+            });
+        });
+
+        describe("for process event", function () {
+            beforeEach(function () {
+                sinon.stub(cluster, "disconnect");
+                this.instance._bindProcess();
+            });
+            afterEach(function () {
+                cluster.disconnect.restore();
+            });
+
+            describe("'SIGINT'", function () {
+                it("should call cluster.disconnect", function () {
+                    process.emit("SIGINT");
+                    cluster.disconnect.should.be.calledOnce;
+                });
+            });
+
+            describe("'SIGTERM'", function () {
+                it("should call cluster.disconnect", function () {
+                    process.emit("SIGTERM");
+                    cluster.disconnect.should.be.calledOnce;
+                });
+            });
+        });
+
+        describe("for instance event", function () {
+            beforeEach(function () {
+                this.instance._bindWorkers();
+            });
+            // afterEach(function () {});
+
+            describe("'drain'", function () {
+                // beforeEach(function () {});
+                // afterEach(function () {});
+
+                it("TODO");
+            });
+
+            describe("'empty'", function () {
+                // beforeEach(function () {});
+                // afterEach(function () {});
+
+                it("TODO");
+            });
+
+            describe("'finished'", function () {
+                it("should call cluster.disconnect", function () {
+                    sinon.stub(cluster, "disconnect");
+                    this.instance.emit("finished");
+                    cluster.disconnect.should.be.calledOnce;
+                    cluster.disconnect.restore();
+                });
+            });
+        });
+    });
 });
