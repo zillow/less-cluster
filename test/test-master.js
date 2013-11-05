@@ -138,21 +138,6 @@ describe("Cluster Master", function () {
             });
         });
 
-        describe("getNextFile()", function () {
-            it("should return first file in the list, if available", function () {
-                this.instance.filesToProcess = ["foo.less", "bar.less"];
-                var result = this.instance.getNextFile();
-                result.should.equal("foo.less");
-            });
-
-            it("should return falsey if no files to process remaining", function () {
-                this.instance.filesToProcess = ["foo.less"];
-                this.instance.getNextFile(); // remove first entry
-                var result = this.instance.getNextFile();
-                result.should.not.be.ok;
-            });
-        });
-
         describe("runQueue()", function () {
             beforeEach(function () {
                 cluster.workers = {
@@ -165,7 +150,7 @@ describe("Cluster Master", function () {
             });
 
             it("should enqueue all workers", function () {
-                sinon.stub(this.instance, "getNextFile").returns(false);
+                sinon.stub(this.instance, "getNextFile").returns(undefined);
                 this.instance.should.not.have.property("running");
 
                 this.instance.runQueue();
@@ -497,7 +482,7 @@ describe("Cluster Master", function () {
 
                 describe("with no files remaining", function () {
                     it("should emit 'empty' event", function () {
-                        this.instance.getNextFile.returns(false);
+                        this.instance.getNextFile.returns(undefined);
                         sinon.spy(this.instance, "emit");
                         this.instance.emit("drain", 1);
                         this.instance.emit.should.be.calledWith("empty", 1);

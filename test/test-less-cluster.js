@@ -96,6 +96,33 @@ describe("LessCluster", function () {
         });
     });
 
+    describe("getNextFile()", function () {
+        beforeEach(function () {
+            this.instance = new LessCluster();
+        });
+        afterEach(function () {
+            this.instance = null;
+        });
+
+        it("should return first file in the list, if available", function () {
+            this.instance.filesToProcess = ["foo.less", "bar.less"];
+            var result = this.instance.getNextFile();
+            result.should.equal("foo.less");
+        });
+
+        it("should return undefined if no files to process remain", function () {
+            this.instance.filesToProcess = ["foo.less"];
+            this.instance.getNextFile(); // remove first entry
+            var result = this.instance.getNextFile();
+            should.not.exist(result);
+        });
+
+        it("should return undefined if no files to process exist", function () {
+            var result = this.instance.getNextFile();
+            should.not.exist(result);
+        });
+    });
+
     describe("collect()", function () {
         var instance;
         before(function () {
