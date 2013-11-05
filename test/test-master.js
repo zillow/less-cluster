@@ -213,11 +213,54 @@ describe("Cluster Master", function () {
         });
 
         describe("startQueue()", function () {
-            it("should send commands to workers immediately when not running");
-            it("should wait until finished to send commands to workers, if running");
-            it("should initialize filesToProcess and readied instance properties");
-            it("should pass filesToRead in worker 'start' data, if available");
-            it("should pass filesToProcess in worker 'start' data when filesToRead missing");
+            var filesToProcess = ["foo", "bar"];
+            var filesToRead = ["alpha", "beta", "gamma"];
+
+            beforeEach(function () {
+                sinon.stub(this.instance, "sendWorkers");
+                cluster.workers = {
+                    "1": {},
+                    "2": {}
+                };
+            });
+            afterEach(function () {
+                cluster.workers = null;
+            });
+
+            it("should send commands to workers immediately when not running", function () {
+                this.instance.startQueue(filesToProcess, filesToRead);
+                this.instance.sendWorkers.should.have.been.calledOnce;
+            });
+
+            it("should wait until finished to send commands to workers, if already running", function () {
+                sinon.stub(this.instance, "once");
+                this.instance.running = 1;
+                this.instance.startQueue(filesToProcess, filesToRead);
+                this.instance.once.should.have.been.calledOnce;
+                this.instance.once.should.have.been.calledWith("finished", sinon.match.func);
+            });
+
+            it("should initialize filesToProcess and readied instance properties", function () {
+                this.instance.startQueue(filesToProcess, filesToRead);
+                this.instance.should.have.property("filesToProcess", filesToProcess);
+                this.instance.should.have.property("readied", 0);
+            });
+
+            it("should pass filesToRead in worker 'start' data, if available", function () {
+                this.instance.startQueue(filesToProcess, filesToRead);
+                this.instance.sendWorkers.should.have.been.calledWith({
+                    cmd: "start",
+                    data: filesToRead
+                });
+            });
+
+            it("should pass filesToProcess in worker 'start' data when filesToRead missing", function () {
+                this.instance.startQueue(filesToProcess);
+                this.instance.sendWorkers.should.have.been.calledWith({
+                    cmd: "start",
+                    data: filesToProcess
+                });
+            });
         });
 
         describe("buildFile()", function () {
