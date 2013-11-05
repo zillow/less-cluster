@@ -264,9 +264,39 @@ describe("Cluster Master", function () {
         });
 
         describe("buildFile()", function () {
-            it("should not send message when worker missing");
-            it("should not send message when fileName missing");
-            it("should send 'build' message to designated worker");
+            beforeEach(function () {
+                cluster.workers = {
+                    "1": { send: sinon.stub() },
+                    "2": { send: sinon.stub() }
+                };
+            });
+            afterEach(function () {
+                cluster.workers = null;
+            });
+
+            it("should not send message when worker missing", function () {
+                this.instance.buildFile(3, "missing_worker");
+
+                cluster.workers["1"].send.should.not.have.been.called;
+                cluster.workers["2"].send.should.not.have.been.called;
+            });
+
+            it("should not send message when fileName missing", function () {
+                this.instance.buildFile(2);
+
+                cluster.workers["2"].send.should.not.have.been.called;
+            });
+
+            it("should send 'build' message to designated worker", function () {
+                this.instance.buildFile(1, "one.less");
+
+                cluster.workers["1"].send.should.have.been.calledOnce;
+                cluster.workers["1"].send.should.have.been.calledWith({
+                    cmd: "build",
+                    dest: path.resolve("one.css"),
+                    file: "one.less"
+                });
+            });
         });
     });
 
