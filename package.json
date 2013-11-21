@@ -46,6 +46,7 @@
   "dependencies": {
     "nopt": "~2.1.1",
     "glob": "~3.2.1",
+    "graceful-fs": "~2.0.1",
     "less": "git://github.com/evocateur/less.js.git#normalize-urls",
     "mkdirp": "~0.3.5"
   }
