@@ -8,6 +8,7 @@ var EventEmitter = require('events').EventEmitter;
 var LessCluster = require('../');
 
 var importsDir = __dirname + '/fixtures/imports/';
+var includeDir = __dirname + '/fixtures/imports/included/';
 
 describe("LessCluster", function () {
     /*jshint expr:true */
@@ -179,6 +180,7 @@ describe("LessCluster", function () {
                 cb.data.should.have.keys([
                     addImportsDir("_variables.less"),
                     addImportsDir("base.less"),
+                    addImportsDir("included/a.less"),
                     addImportsDir("modules/child.less"),
                     addImportsDir("modules/parent.less"),
                     addImportsDir("modules/solo.less"),
@@ -194,6 +196,7 @@ describe("LessCluster", function () {
             "toProcess": [
                 "_variables.less",
                 "base.less",
+                "included/a.less",
                 "modules/child.less",
                 "modules/parent.less",
                 "modules/solo.less",
@@ -210,6 +213,7 @@ describe("LessCluster", function () {
             "toRead"   : [
                 "_variables.less",
                 "base.less",
+                "included/a.less",
                 "modules/child.less",
                 "modules/parent.less",
                 "themes/fancy.less",
@@ -222,6 +226,7 @@ describe("LessCluster", function () {
             "toRead"   : [
                 "_variables.less",
                 "base.less",
+                "included/a.less",
                 "modules/child.less",
                 "modules/parent.less",
                 "themes/fancy.less",
@@ -240,6 +245,7 @@ describe("LessCluster", function () {
                 "_variables.less",
                 // TODO: grandparents
                 // "base.less",
+                // "included/a.less",
                 "modules/child.less",
                 "modules/parent.less",
                 "themes/fancy.less",
@@ -319,6 +325,7 @@ function filtersOutput(title, config) {
         before(function (done) {
             var relativePaths = config.toFilter;
             var instanceConfig = {
+                "paths": [includeDir],
                 "directory": importsDir
             };
 
