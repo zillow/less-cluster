@@ -38,8 +38,8 @@
   "devDependencies": {
     "chai": "~1.8.0",
     "istanbul": "~0.1.44",
-    "jshint": "~2.1.11",
-    "mocha": "~1.13.0",
+    "jshint": "~2.3.0",
+    "mocha": "~1.14.0",
     "sinon": "~1.7.3",
     "sinon-chai": "~2.4.0"
   },
