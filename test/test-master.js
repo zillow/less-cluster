@@ -175,8 +175,8 @@ describe("Cluster Master", function () {
 
                 this.instance.should.have.property("running", 2);
                 this.instance.buildFile.should.have.been.calledTwice;
-                this.instance.buildFile.should.have.been.calledWith("1", "foo");
-                this.instance.buildFile.should.have.been.calledWith("2", "bar");
+                this.instance.buildFile.should.have.been.calledWith("foo", "1");
+                this.instance.buildFile.should.have.been.calledWith("bar", "2");
             });
         });
 
@@ -260,20 +260,20 @@ describe("Cluster Master", function () {
             });
 
             it("should not send message when worker missing", function () {
-                this.instance.buildFile(3, "missing_worker");
+                this.instance.buildFile("missing_worker", 3);
 
                 cluster.workers["1"].send.should.not.have.been.called;
                 cluster.workers["2"].send.should.not.have.been.called;
             });
 
             it("should not send message when fileName missing", function () {
-                this.instance.buildFile(2);
+                this.instance.buildFile(null, 2);
 
                 cluster.workers["2"].send.should.not.have.been.called;
             });
 
             it("should send 'build' message to designated worker", function () {
-                this.instance.buildFile(1, "one.less");
+                this.instance.buildFile("one.less", 1);
 
                 cluster.workers["1"].send.should.have.been.calledOnce;
                 cluster.workers["1"].send.should.have.been.calledWith({
@@ -476,7 +476,7 @@ describe("Cluster Master", function () {
                         this.instance.getNextFile.returns("foo.less");
                         sinon.stub(this.instance, "buildFile");
                         this.instance.emit("drain", 1);
-                        this.instance.buildFile.should.be.calledWith(1, "foo.less");
+                        this.instance.buildFile.should.be.calledWith("foo.less", 1);
                     });
                 });
 
