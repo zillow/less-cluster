@@ -222,7 +222,7 @@ describe("LessCluster", function () {
         });
         filtersOutput("[modules/parent.less]", {
             "toFilter" : ["modules/parent.less"],
-            "toProcess": ["modules/parent.less"],
+            "toProcess": ["modules/parent.less", "base.less"],
             "toRead"   : [
                 "_variables.less",
                 "base.less",
@@ -236,10 +236,10 @@ describe("LessCluster", function () {
         filtersOutput("[_variables.less]", {
             "toFilter" : ["_variables.less"],
             "toProcess": [
-                "_variables.less"
-                // "modules/child.less",
-                // "modules/parent.less",
-                // "themes/fancy.less"
+                "_variables.less",
+                "modules/child.less",
+                "modules/parent.less",
+                "themes/fancy.less"
             ],
             "toRead"   : [
                 "_variables.less",
@@ -254,7 +254,7 @@ describe("LessCluster", function () {
         });
         filtersOutput("[themes/simple.less]", {
             "toFilter" : ["themes/simple.less"],
-            "toProcess": ["themes/simple.less"],
+            "toProcess": ["themes/simple.less", "modules/child.less"],
             "toRead"   : [
                 "_variables.less",
                 "modules/child.less",
