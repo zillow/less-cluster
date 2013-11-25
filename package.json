@@ -19,8 +19,8 @@
   },
   "scripts": {
     "pretest": "jshint bin lib test",
-    "test": "istanbul test --print both ./node_modules/mocha/bin/_mocha",
-    "posttest": "istanbul check-coverage --statements 60 --functions 50 --branches 50 --lines 60"
+    "test": "istanbul cover --print both ./node_modules/mocha/bin/_mocha",
+    "posttest": "istanbul check-coverage --statements 80 --functions 80 --branches 80 --lines 80"
   },
   "repository": {
     "type": "git",
