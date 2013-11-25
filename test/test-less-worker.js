@@ -2,6 +2,7 @@
 /**
 Tests for the worker
 **/
+var less = require('less');
 var LessWorker = require('../lib/less-worker');
 
 describe('LessWorker', function () {
@@ -36,8 +37,36 @@ describe('LessWorker', function () {
             (new LessWorker({ 'lint': true })).options.should.have.property('lint').that.is.true;
         });
     });
-    describe("methods", function () {
+
+    describe("method", function () {
+        describe("start()", function () {
+            it("should read all the files specified");
         });
+
+        describe("destroy()", function () {
+            it("should nullify private caches");
+            it("should restore original less.Parser.importer");
+        });
+
+        describe("doneWrote()", function () {
+            it("should emit an error if present");
+            it("should emit drain when successful");
+        });
+
+        describe("inDir()", function () {
+            it("should emit an error if present");
+            it("should write data into filename");
+        });
+
+        describe("writeOutput()", function () {
+            it("should skip writing if data empty");
+            it("should ensure directory exists before writing");
+        });
+
+        describe("rebaseRootPath()", function () {
+            it("TODO");
+        });
+
         describe("build()", function () {
             it("TODO");
         });
