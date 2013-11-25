@@ -97,6 +97,43 @@ describe("LessCluster", function () {
         });
     });
 
+    describe("run()", function () {
+        beforeEach(function () {
+            this.instance = new LessCluster().run();
+        });
+        afterEach(function () {
+            this.instance = null;
+        });
+
+        it("should instantiate a worker", function () {
+            this.instance.should.have.ownProperty("worker");
+        });
+
+        it("should hook worker events", function () {
+            this.instance.worker.listeners("drain").should.have.length(1);
+        });
+    });
+
+    describe("destroy()", function () {
+        beforeEach(function () {
+            this.instance = new LessCluster().run();
+            sinon.stub(this.instance, "removeAllListeners");
+            sinon.stub(this.instance.worker, "destroy");
+            this.instance.destroy();
+        });
+        afterEach(function () {
+            this.instance = null;
+        });
+
+        it("should unhook all events", function () {
+            this.instance.removeAllListeners.should.have.been.calledOnce;
+        });
+
+        it("should destroy worker", function () {
+            this.instance.worker.destroy.should.have.been.calledOnce;
+        });
+    });
+
     describe("getNextFile()", function () {
         beforeEach(function () {
             this.instance = new LessCluster();
