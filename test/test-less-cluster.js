@@ -192,18 +192,43 @@ describe("LessCluster", function () {
         });
     });
 
+    describe("buildFile()", function () {
+        beforeEach(function () {
+            this.instance = new LessCluster().run();
+            sinon.stub(this.instance.worker, "build");
+        });
+        afterEach(function () {
+            this.instance.destroy();
+            this.instance = null;
+        });
+
+        it("should not error when worker missing", function () {
+            should.not.Throw(function () {
+                new LessCluster().buildFile("foo.less");
+            });
+        });
+
+        it("should not call worker.build() when fileName missing", function () {
+            this.instance.buildFile();
+            this.instance.worker.build.should.not.have.been.called;
+        });
+
+        it("should call worker.build() with correct options", function () {
+            var fileName = addImportsDir("base.less");
+            this.instance.buildFile(fileName);
+            this.instance.worker.build.should.have.been.calledWith({
+                dest: addImportsDir("base.css"),
+                file: fileName
+            });
+        });
+    });
+
     describe("collect()", function () {
         var instance;
         before(function () {
             instance = new LessCluster({
                 "directory": importsDir
             });
-        });
-
-        it("_getDestinationPath()", function () {
-            var actually = instance._getDestinationPath(addImportsDir('base.less'));
-            var expected = addImportsDir('base.css');
-            actually.should.equal(expected);
         });
 
         it("_getRelativePath()", function () {
