@@ -231,11 +231,6 @@ describe("LessCluster", function () {
             });
         });
 
-        it("_getRelativePath()", function () {
-            var actually = instance._getRelativePath(__dirname + '/fixtures');
-            var expected = 'test/fixtures';
-            actually.should.equal(expected);
-        });
         it("_getGlobPattern()", function () {
             var actually = instance._getGlobPattern('foo');
             var expected = 'foo/' + instance.options.match;
