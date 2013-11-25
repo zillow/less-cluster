@@ -146,7 +146,7 @@ describe("Cluster Master", function () {
                 };
             });
             afterEach(function () {
-                cluster.workers = null;
+                cluster.workers = {};
             });
 
             it("should enqueue all workers", function () {
@@ -193,7 +193,7 @@ describe("Cluster Master", function () {
                 cluster.workers["1"].send.should.have.been.calledOnce.and.calledWith(payload);
                 cluster.workers["2"].send.should.have.been.calledOnce.and.calledWith(payload);
 
-                cluster.workers = null;
+                cluster.workers = {};
             });
         });
 
@@ -256,7 +256,7 @@ describe("Cluster Master", function () {
                 };
             });
             afterEach(function () {
-                cluster.workers = null;
+                cluster.workers = {};
             });
 
             it("should not send message when worker missing", function () {
