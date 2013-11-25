@@ -1,6 +1,6 @@
 # less-cluster
 
-A utility to make lessc's CLI more performant for large directories of LESS files.
+A utility to make [lessc](https://github.com/less/less.js)'s CLI more performant for large directories of LESS files.
 
 [![Build Status](https://travis-ci.org/zillow/less-cluster.png)](https://travis-ci.org/zillow/less-cluster)
 
