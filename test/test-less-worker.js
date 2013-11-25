@@ -21,28 +21,22 @@ describe('LessWorker', function () {
         it("should instantiate as constructor", function () {
             instance.should.be.an.instanceof(LessWorker);
         });
-        it("should set _fileData property to an empty object", function () {
-            instance.should.have.property('_fileData')
-                .that.is.an('object')
-                .that.deep.equals({});
+
+        it("should create private caches as empty objects", function () {
+            instance.should.have.property('_fileData').that.deep.equals({});
+            instance.should.have.property('_pathCache').that.deep.equals({});
+            instance.should.have.property('_pathRebase').that.deep.equals({});
+        });
+
+        it("should default options when missing", function () {
+            instance.options.should.deep.equal(LessWorker.defaults);
+        });
+
+        it("should override defaults when passed", function () {
+            (new LessWorker({ 'lint': true })).options.should.have.property('lint').that.is.true;
         });
     });
     describe("methods", function () {
-        describe("_applyConfig()", function () {
-            var defaults = LessWorker.defaults;
-            var instance = new LessWorker();
-
-            it("defaults values when missing", function () {
-                instance._applyConfig();
-                instance.options.should.deep.equal(defaults);
-            });
-
-            it("overrides defaults when passed", function () {
-                instance._applyConfig({
-                    'lint': true
-                });
-                instance.options.should.have.property('lint').that.is.true;
-            });
         });
         describe("build()", function () {
             it("TODO");
