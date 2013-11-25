@@ -117,8 +117,10 @@ describe("LessCluster", function () {
     describe("destroy()", function () {
         beforeEach(function () {
             this.instance = new LessCluster().run();
+
             sinon.stub(this.instance, "removeAllListeners");
             sinon.stub(this.instance.worker, "destroy");
+
             this.instance.destroy();
         });
         afterEach(function () {
@@ -158,6 +160,35 @@ describe("LessCluster", function () {
         it("should return undefined if no files to process exist", function () {
             var result = this.instance.getNextFile();
             should.not.exist(result);
+        });
+    });
+
+    describe("onDrain()", function () {
+        beforeEach(function () {
+            this.instance = new LessCluster();
+
+            sinon.stub(this.instance, "getNextFile");
+        });
+        afterEach(function () {
+            this.instance = null;
+        });
+
+        it("should pass next available file to buildFile()", function () {
+            sinon.stub(this.instance, "buildFile");
+            this.instance.getNextFile.returns("foo.less");
+
+            this.instance.onDrain();
+
+            this.instance.buildFile.should.have.been.calledWith("foo.less");
+        });
+
+        it("should emit 'finished' event when queue empty", function () {
+            sinon.stub(this.instance, "emit");
+            this.instance.getNextFile.returns();
+
+            this.instance.onDrain();
+
+            this.instance.emit.should.have.been.calledWith("finished");
         });
     });
 
