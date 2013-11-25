@@ -2,6 +2,8 @@
 
 A utility to make lessc's CLI more performant for large directories of LESS files.
 
+[![Build Status](https://travis-ci.org/zillow/less-cluster.png)](https://travis-ci.org/zillow/less-cluster)
+
 ## Install
 
     npm -g install less-cluster
