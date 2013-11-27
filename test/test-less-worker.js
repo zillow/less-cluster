@@ -69,7 +69,34 @@ describe('LessWorker', function () {
         });
 
         describe("start()", function () {
-            it("should read all the files specified");
+            var message = { "cmd": "start", "data": ["foo.less"] };
+
+            beforeEach(function () {
+                sinon.stub(this.instance, "emit");
+                sinon.stub(LessWorker, "readFiles");
+            });
+            afterEach(function () {
+                LessWorker.readFiles.restore();
+            });
+
+            it("should read all the files specified in message data", function () {
+                this.instance.start(message);
+                LessWorker.readFiles.should.have.been.calledWith(message.data, sinon.match.func);
+            });
+
+            it("should emit error event when encountered", function () {
+                LessWorker.readFiles.yields("oh noes!");
+                this.instance.start(message);
+                this.instance.emit.should.have.been.calledWith("error", "oh noes!");
+            });
+
+            it("should emit ready event when successful", function () {
+                var data = { "foo.less": "foo" };
+                LessWorker.readFiles.yields(null, data);
+                this.instance.start(message);
+                this.instance.emit.should.have.been.calledWith("ready");
+                this.instance._fileData.should.eql(data);
+            });
         });
 
         describe("doneWrote()", function () {
