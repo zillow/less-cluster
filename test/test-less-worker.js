@@ -2,6 +2,7 @@
 /**
 Tests for the worker
 **/
+var fs = require('graceful-fs');
 var less = require('less');
 var LessWorker = require('../lib/less-worker');
 
@@ -122,8 +123,32 @@ describe('LessWorker', function () {
         });
 
         describe("inDir()", function () {
-            it("should emit an error if present");
-            it("should write data into filename");
+            var fileName = "foo.less";
+            var fileData = "foo";
+
+            beforeEach(function () {
+                sinon.stub(this.instance, "emit");
+                sinon.stub(this.instance, "doneWrote");
+                sinon.stub(fs, "writeFile");
+            });
+            afterEach(function () {
+                this.instance.emit.restore();
+                this.instance.doneWrote.restore();
+                fs.writeFile.restore();
+            });
+
+            it("should emit an error if present", function () {
+                this.instance.inDir(fileName, fileData, "oh noes!");
+                this.instance.emit.should.have.been.calledWith("error", "oh noes!");
+                fs.writeFile.should.not.have.been.called;
+            });
+
+            it("should write data into filename", function () {
+                fs.writeFile.yields();
+                this.instance.inDir(fileName, fileData, null);
+                this.instance.doneWrote.should.have.been.calledOnce;
+                fs.writeFile.should.have.been.calledWith(fileName, fileData, "utf8", sinon.match.func);
+            });
         });
 
         describe("writeOutput()", function () {
