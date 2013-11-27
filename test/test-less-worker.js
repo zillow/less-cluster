@@ -16,6 +16,7 @@ describe('LessWorker', function () {
             instance.should.be.an.instanceof(LessWorker);
         });
     });
+
     describe("instance", function () {
         var instance = new LessWorker();
 
@@ -36,16 +37,16 @@ describe('LessWorker', function () {
         it("should override defaults when passed", function () {
             (new LessWorker({ 'lint': true })).options.should.have.property('lint').that.is.true;
         });
+
+        describe("destroy()", function () {
+            it("should nullify private caches");
+            it("should restore original less.Parser.importer");
+        });
     });
 
     describe("method", function () {
         describe("start()", function () {
             it("should read all the files specified");
-        });
-
-        describe("destroy()", function () {
-            it("should nullify private caches");
-            it("should restore original less.Parser.importer");
         });
 
         describe("doneWrote()", function () {
