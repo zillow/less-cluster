@@ -3,6 +3,7 @@
 Tests for the worker
 **/
 var fs = require('graceful-fs');
+var path = require('path');
 var less = require('less');
 var LessWorker = require('../lib/less-worker');
 
@@ -61,6 +62,10 @@ describe('LessWorker', function () {
     });
 
     describe("method", function () {
+        var fileName = path.resolve(__dirname, "fixtures/imports/included/a.less");
+        var fileData = "foo"; // file is actually empty, but we never actually read it
+        var ohNoesError = "oh noes!";
+
         beforeEach(function () {
             this.instance = new LessWorker();
         });
@@ -70,7 +75,7 @@ describe('LessWorker', function () {
         });
 
         describe("start()", function () {
-            var message = { "cmd": "start", "data": ["foo.less"] };
+            var message = { "cmd": "start", "data": [fileName] };
 
             beforeEach(function () {
                 sinon.stub(this.instance, "emit");
@@ -86,13 +91,13 @@ describe('LessWorker', function () {
             });
 
             it("should emit error event when encountered", function () {
-                LessWorker.readFiles.yields("oh noes!");
+                LessWorker.readFiles.yields(ohNoesError);
                 this.instance.start(message);
-                this.instance.emit.should.have.been.calledWith("error", "oh noes!");
+                this.instance.emit.should.have.been.calledWith("error", ohNoesError);
             });
 
             it("should emit ready event when successful", function () {
-                var data = { "foo.less": "foo" };
+                var data = { "foo.less": fileData };
                 LessWorker.readFiles.yields(null, data);
                 this.instance.start(message);
                 this.instance.emit.should.have.been.calledWith("ready");
@@ -111,21 +116,18 @@ describe('LessWorker', function () {
             });
 
             it("should emit an error if present", function () {
-                this.instance.doneWrote("foo.less", "oh noes!");
-                this.instance.emit.should.have.been.calledWith("error", "oh noes!");
+                this.instance.doneWrote(fileName, ohNoesError);
+                this.instance.emit.should.have.been.calledWith("error", ohNoesError);
             });
 
             it("should emit drain when successful", function () {
-                this.instance.doneWrote("foo.less");
+                this.instance.doneWrote(fileName);
                 this.instance.log.should.have.been.calledOnce;
-                this.instance.emit.should.have.been.calledWith("drain", "foo.less");
+                this.instance.emit.should.have.been.calledWith("drain", fileName);
             });
         });
 
         describe("inDir()", function () {
-            var fileName = "foo.less";
-            var fileData = "foo";
-
             beforeEach(function () {
                 sinon.stub(this.instance, "emit");
                 sinon.stub(this.instance, "doneWrote");
@@ -138,8 +140,8 @@ describe('LessWorker', function () {
             });
 
             it("should emit an error if present", function () {
-                this.instance.inDir(fileName, fileData, "oh noes!");
-                this.instance.emit.should.have.been.calledWith("error", "oh noes!");
+                this.instance.inDir(fileName, fileData, ohNoesError);
+                this.instance.emit.should.have.been.calledWith("error", ohNoesError);
                 fs.writeFile.should.not.have.been.called;
             });
 
