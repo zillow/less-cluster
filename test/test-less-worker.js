@@ -100,8 +100,25 @@ describe('LessWorker', function () {
         });
 
         describe("doneWrote()", function () {
-            it("should emit an error if present");
-            it("should emit drain when successful");
+            beforeEach(function () {
+                sinon.stub(this.instance, "emit");
+                sinon.stub(this.instance, "log");
+            });
+            afterEach(function () {
+                this.instance.emit.restore();
+                this.instance.log.restore();
+            });
+
+            it("should emit an error if present", function () {
+                this.instance.doneWrote("foo.less", "oh noes!");
+                this.instance.emit.should.have.been.calledWith("error", "oh noes!");
+            });
+
+            it("should emit drain when successful", function () {
+                this.instance.doneWrote("foo.less");
+                this.instance.log.should.have.been.calledOnce;
+                this.instance.emit.should.have.been.calledWith("drain", "foo.less");
+            });
         });
 
         describe("inDir()", function () {
