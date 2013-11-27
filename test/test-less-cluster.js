@@ -265,7 +265,7 @@ describe("LessCluster", function () {
                 cb.data.should.be.an('object');
             });
             it("finds all files successfully", function () {
-                cb.data.should.have.keys([
+                cb.data.should.include.keys([
                     addImportsDir("_variables.less"),
                     addImportsDir("base.less"),
                     addImportsDir("included/a.less"),
@@ -391,14 +391,13 @@ function expectFiles(subtitle, results, expected) {
         it("matches all files", function () {
             var actually = results[subtitle];
             var absolutized = expected.map(addImportsDir);
-            actually.should.eql(absolutized);
+            actually.should.include.members(absolutized);
         });
 
-        expected.forEach(function (relativePath, i) {
+        expected.forEach(function (relativePath) {
             it(relativePath, function () {
                 var actually = results[subtitle];
-                should.exist(actually[i]);
-                actually[i].should.equal(addImportsDir(relativePath));
+                actually.should.include(addImportsDir(relativePath));
             });
         });
     });
