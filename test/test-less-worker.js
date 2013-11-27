@@ -62,8 +62,14 @@ describe('LessWorker', function () {
     });
 
     describe("method", function () {
-        var fileName = path.resolve(__dirname, "fixtures/imports/included/a.less");
+        var fileName = "a.less";
+        var filePath = path.resolve(__dirname, "fixtures/imports/included", fileName);
         var fileData = "foo"; // file is actually empty, but we never actually read it
+
+        var childImportName = "modules/parent.less";
+        var childImportPath = path.resolve(__dirname, "fixtures/imports", childImportName);
+        var parentFilePath  = path.resolve(__dirname, "fixtures/imports/base.less");
+
         var ohNoesError = "oh noes!";
 
         beforeEach(function () {
@@ -75,7 +81,7 @@ describe('LessWorker', function () {
         });
 
         describe("start()", function () {
-            var message = { "cmd": "start", "data": [fileName] };
+            var message = { "cmd": "start", "data": [filePath] };
 
             beforeEach(function () {
                 sinon.stub(this.instance, "emit");
@@ -97,7 +103,8 @@ describe('LessWorker', function () {
             });
 
             it("should emit ready event when successful", function () {
-                var data = { "foo.less": fileData };
+                var data = {};
+                data[fileName] = fileData;
                 LessWorker.readFiles.yields(null, data);
                 this.instance.start(message);
                 this.instance.emit.should.have.been.calledWith("ready");
@@ -116,14 +123,14 @@ describe('LessWorker', function () {
             });
 
             it("should emit an error if present", function () {
-                this.instance.doneWrote(fileName, ohNoesError);
+                this.instance.doneWrote(filePath, ohNoesError);
                 this.instance.emit.should.have.been.calledWith("error", ohNoesError);
             });
 
             it("should emit drain when successful", function () {
-                this.instance.doneWrote(fileName);
+                this.instance.doneWrote(filePath);
                 this.instance.log.should.have.been.calledOnce;
-                this.instance.emit.should.have.been.calledWith("drain", fileName);
+                this.instance.emit.should.have.been.calledWith("drain", filePath);
             });
         });
 
@@ -140,16 +147,16 @@ describe('LessWorker', function () {
             });
 
             it("should emit an error if present", function () {
-                this.instance.inDir(fileName, fileData, ohNoesError);
+                this.instance.inDir(filePath, fileData, ohNoesError);
                 this.instance.emit.should.have.been.calledWith("error", ohNoesError);
                 fs.writeFile.should.not.have.been.called;
             });
 
             it("should write data into filename", function () {
                 fs.writeFile.yields();
-                this.instance.inDir(fileName, fileData, null);
+                this.instance.inDir(filePath, fileData, null);
                 this.instance.doneWrote.should.have.been.calledOnce;
-                fs.writeFile.should.have.been.calledWith(fileName, fileData, "utf8", sinon.match.func);
+                fs.writeFile.should.have.been.calledWith(filePath, fileData, "utf8", sinon.match.func);
             });
         });
 
@@ -169,27 +176,22 @@ describe('LessWorker', function () {
             });
 
             it("should skip writing if data empty, draining immediately", function () {
-                this.instance.writeOutput(fileName, "");
+                this.instance.writeOutput(filePath, "");
                 this.instance.warn.should.have.been.calledOnce;
-                this.instance.emit.should.have.been.calledWith("drain", fileName);
+                this.instance.emit.should.have.been.calledWith("drain", filePath);
                 this.instance.inDir.should.not.have.been.called;
                 fs.mkdir.should.not.have.been.called;
             });
 
             it("should ensure directory exists before writing", function () {
                 fs.mkdir.yields(null); // success
-                this.instance.writeOutput(fileName, fileData);
-                fs.mkdir.should.have.been.calledWith(path.dirname(fileName));
-                this.instance.inDir.should.have.been.calledWith(fileName, fileData, null);
+                this.instance.writeOutput(filePath, fileData);
+                fs.mkdir.should.have.been.calledWith(path.dirname(filePath));
+                this.instance.inDir.should.have.been.calledWith(filePath, fileData, null);
             });
         });
 
         describe("resolveChildPath()", function () {
-            var childImport = "modules/parent.less";
-            var childImportPath = path.resolve(__dirname, "fixtures/imports", childImport);
-            var parentFilePath  = path.resolve(__dirname, "fixtures/imports/base.less");
-            var rebasedImport = "a.less"; // corresponds to "fileName" variable in outer scope
-
             beforeEach(function () {
                 sinon.stub(fs, "existsSync");
             });
@@ -199,51 +201,51 @@ describe('LessWorker', function () {
 
             describe("when cache is hot", function () {
                 beforeEach(function () {
-                    this.instance._pathCache[rebasedImport] = fileName;
+                    this.instance._pathCache[fileName] = filePath;
                 });
 
                 it("should early return cached childPath", function () {
-                    var result = this.instance.resolveChildPath(rebasedImport, parentFilePath, []);
+                    var result = this.instance.resolveChildPath(fileName, parentFilePath, []);
                     fs.existsSync.should.not.have.been.called;
-                    result.should.equal(fileName);
+                    result.should.equal(filePath);
                 });
             });
 
             describe("when cache is cold", function () {
                 // simulating --include-path arguments
-                var envPaths = [path.dirname(fileName)];
+                var envPaths = [path.dirname(filePath)];
 
                 beforeEach(function () {
-                    fs.existsSync.withArgs(fileName).returns(true);
+                    fs.existsSync.withArgs(filePath).returns(true);
                     fs.existsSync.withArgs(childImportPath).returns(true);
                 });
 
                 it("should cache a successful lookup", function () {
                     this.instance
-                        .resolveChildPath(childImport, parentFilePath, envPaths)
+                        .resolveChildPath(childImportName, parentFilePath, envPaths)
                             .should.equal(childImportPath);
 
                     fs.existsSync.should.have.been.calledOnce;
 
-                    this.instance._pathCache.should.have.property(childImport, childImportPath);
+                    this.instance._pathCache.should.have.property(childImportName, childImportPath);
                 });
 
                 it("should loop over all include paths when locating child", function () {
                     this.instance
-                        .resolveChildPath(rebasedImport, parentFilePath, envPaths)
-                            .should.equal(fileName);
+                        .resolveChildPath(fileName, parentFilePath, envPaths)
+                            .should.equal(filePath);
 
                     fs.existsSync.should.have.been.calledTwice;
                 });
 
                 it("should indicate if the resolved path has been rebased", function () {
-                    this.instance.resolveChildPath(childImport,   parentFilePath, envPaths);
-                    this.instance.resolveChildPath(rebasedImport, parentFilePath, envPaths);
+                    this.instance.resolveChildPath(childImportName, parentFilePath, envPaths);
+                    this.instance.resolveChildPath(fileName,        parentFilePath, envPaths);
 
                     fs.existsSync.should.have.been.calledThrice;
 
-                    this.instance._pathRebase.should.have.property(childImport,  false);
-                    this.instance._pathRebase.should.have.property(rebasedImport, true);
+                    this.instance._pathRebase.should.have.property(childImportName, false);
+                    this.instance._pathRebase.should.have.property(fileName,         true);
                 });
 
                 it("should throw error when lookup fails?");
