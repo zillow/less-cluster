@@ -254,12 +254,48 @@ describe('LessWorker', function () {
 
         describe("rebaseRootPath()", function () {
             describe("when staying inside parent directory", function () {
-                it("should not rebase child rootpath");
+                it("should not rebase sibling rootpath", function () {
+                    var childFileInfo = {
+                        "currentDirectory"  : __dirname + "/fixtures/imports/",
+                        "entryPath"         : __dirname + "/fixtures/imports/",
+                        "filename"          : __dirname + "/fixtures/imports/external.css",
+                        "rootFilename"      : __dirname + "/fixtures/imports/base.less",
+                        "rootpath"          : ""
+                    };
+                    this.instance.rebaseRootPath("external.css", parentFilePath, childFileInfo);
+                    childFileInfo.rootpath.should.equal("");
+                });
+
+                it("should rebase relative from root file source path", function () {
+                    var childFileInfo = {
+                        "currentDirectory"  : __dirname + "/fixtures/imports/modules/",
+                        "entryPath"         : __dirname + "/fixtures/imports/",
+                        "filename"          : __dirname + "/fixtures/imports/modules/parent.less",
+                        "rootFilename"      : __dirname + "/fixtures/imports/base.less",
+                        "rootpath"          : ""
+                    };
+                    this.instance.rebaseRootPath(childImportName, parentFilePath, childFileInfo);
+                    childFileInfo.rootpath.should.equal("modules/");
+                });
             });
 
             describe("when traversing outside parent directory", function () {
-                it("should rebase relative from destination path");
-                it("should rebase relative from root file source path");
+                beforeEach(function () {
+                    this.instance._pathRebase[fileName] = true;
+                });
+
+                it("should rebase relative from destination path", function () {
+                    var childFileInfo = {
+                        "currentDirectory"  : __dirname + "/fixtures/imports/included/",
+                        "filename"          : __dirname + "/fixtures/imports/included/a.less",
+                        "entryPath"         : __dirname + "/fixtures/imports/",
+                        "rootFilename"      : __dirname + "/fixtures/imports/base.less",
+                        "destPath"          : __dirname + "/fixtures/output",
+                        "rootpath"          : ""
+                    };
+                    this.instance.rebaseRootPath(fileName, parentFilePath, childFileInfo);
+                    childFileInfo.rootpath.should.equal("../imports/included/");
+                });
             });
         });
 
