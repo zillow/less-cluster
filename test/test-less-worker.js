@@ -60,6 +60,14 @@ describe('LessWorker', function () {
     });
 
     describe("method", function () {
+        beforeEach(function () {
+            this.instance = new LessWorker();
+        });
+        afterEach(function () {
+            this.instance.destroy();
+            this.instance = null;
+        });
+
         describe("start()", function () {
             it("should read all the files specified");
         });
