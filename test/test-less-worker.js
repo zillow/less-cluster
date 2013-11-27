@@ -154,8 +154,34 @@ describe('LessWorker', function () {
         });
 
         describe("writeOutput()", function () {
-            it("should skip writing if data empty");
-            it("should ensure directory exists before writing");
+            beforeEach(function () {
+                sinon.stub(this.instance, "emit");
+                sinon.stub(this.instance, "warn");
+                sinon.stub(this.instance, "inDir");
+                // mkdirp calls fs.mkdir under the covers
+                sinon.stub(fs, "mkdir");
+            });
+            afterEach(function () {
+                this.instance.emit.restore();
+                this.instance.warn.restore();
+                this.instance.inDir.restore();
+                fs.mkdir.restore();
+            });
+
+            it("should skip writing if data empty, draining immediately", function () {
+                this.instance.writeOutput(fileName, "");
+                this.instance.warn.should.have.been.calledOnce;
+                this.instance.emit.should.have.been.calledWith("drain", fileName);
+                this.instance.inDir.should.not.have.been.called;
+                fs.mkdir.should.not.have.been.called;
+            });
+
+            it("should ensure directory exists before writing", function () {
+                fs.mkdir.yields(null); // success
+                this.instance.writeOutput(fileName, fileData);
+                fs.mkdir.should.have.been.calledWith(path.dirname(fileName));
+                this.instance.inDir.should.have.been.calledWith(fileName, fileData, null);
+            });
         });
 
         describe("rebaseRootPath()", function () {
