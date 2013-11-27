@@ -184,8 +184,27 @@ describe('LessWorker', function () {
             });
         });
 
+        describe("resolveChildPath()", function () {
+            describe("when cache is hot", function () {
+                it("should return cached childPath");
+            });
+
+            describe("when cache is cold", function () {
+                it("should cache a successful lookup");
+                it("should loop over all include paths when locating child");
+                it("should indicate if the resolved path has been rebased");
+            });
+        });
+
         describe("rebaseRootPath()", function () {
-            it("TODO");
+            describe("when staying inside parent directory", function () {
+                it("should not rebase child rootpath");
+            });
+
+            describe("when traversing outside parent directory", function () {
+                it("should rebase relative from destination path");
+                it("should rebase relative from root file source path");
+            });
         });
 
         describe("build()", function () {
