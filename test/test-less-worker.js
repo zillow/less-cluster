@@ -39,8 +39,23 @@ describe('LessWorker', function () {
         });
 
         describe("destroy()", function () {
-            it("should nullify private caches");
+            before(function () {
+                sinon.spy(instance, "removeAllListeners");
+                instance.destroy();
+            });
+
+            it("should nullify private caches", function () {
+                instance.should.have.property('_fileData').that.is.null;
+                instance.should.have.property('_pathCache').that.is.null;
+                instance.should.have.property('_pathRebase').that.is.null;
+            });
+
+            it("should remove all listeners", function () {
+                instance.removeAllListeners.should.have.been.calledOnce;
+            });
+
             it("should restore original less.Parser.importer");
+            // this is hard to assert that it actually happened...
         });
     });
 
