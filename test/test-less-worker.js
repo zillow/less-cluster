@@ -185,14 +185,68 @@ describe('LessWorker', function () {
         });
 
         describe("resolveChildPath()", function () {
+            var childImport = "modules/parent.less";
+            var childImportPath = path.resolve(__dirname, "fixtures/imports", childImport);
+            var parentFilePath  = path.resolve(__dirname, "fixtures/imports/base.less");
+            var rebasedImport = "a.less"; // corresponds to "fileName" variable in outer scope
+
+            beforeEach(function () {
+                sinon.stub(fs, "existsSync");
+            });
+            afterEach(function () {
+                fs.existsSync.restore();
+            });
+
             describe("when cache is hot", function () {
-                it("should return cached childPath");
+                beforeEach(function () {
+                    this.instance._pathCache[rebasedImport] = fileName;
+                });
+
+                it("should early return cached childPath", function () {
+                    var result = this.instance.resolveChildPath(rebasedImport, parentFilePath, []);
+                    fs.existsSync.should.not.have.been.called;
+                    result.should.equal(fileName);
+                });
             });
 
             describe("when cache is cold", function () {
-                it("should cache a successful lookup");
-                it("should loop over all include paths when locating child");
-                it("should indicate if the resolved path has been rebased");
+                // simulating --include-path arguments
+                var envPaths = [path.dirname(fileName)];
+
+                beforeEach(function () {
+                    fs.existsSync.withArgs(fileName).returns(true);
+                    fs.existsSync.withArgs(childImportPath).returns(true);
+                });
+
+                it("should cache a successful lookup", function () {
+                    this.instance
+                        .resolveChildPath(childImport, parentFilePath, envPaths)
+                            .should.equal(childImportPath);
+
+                    fs.existsSync.should.have.been.calledOnce;
+
+                    this.instance._pathCache.should.have.property(childImport, childImportPath);
+                });
+
+                it("should loop over all include paths when locating child", function () {
+                    this.instance
+                        .resolveChildPath(rebasedImport, parentFilePath, envPaths)
+                            .should.equal(fileName);
+
+                    fs.existsSync.should.have.been.calledTwice;
+                });
+
+                it("should indicate if the resolved path has been rebased", function () {
+                    this.instance.resolveChildPath(childImport,   parentFilePath, envPaths);
+                    this.instance.resolveChildPath(rebasedImport, parentFilePath, envPaths);
+
+                    fs.existsSync.should.have.been.calledThrice;
+
+                    this.instance._pathRebase.should.have.property(childImport,  false);
+                    this.instance._pathRebase.should.have.property(rebasedImport, true);
+                });
+
+                it("should throw error when lookup fails?");
             });
         });
 
