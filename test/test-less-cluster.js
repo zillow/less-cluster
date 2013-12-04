@@ -216,10 +216,7 @@ describe("LessCluster", function () {
         it("should call worker.build() with correct options", function () {
             var fileName = addImportsDir("base.less");
             this.instance.buildFile(fileName);
-            this.instance.worker.build.should.have.been.calledWith({
-                dest: addImportsDir("base.css"),
-                file: fileName
-            });
+            this.instance.worker.build.should.have.been.calledWith(fileName, addImportsDir("base.css"));
         });
     });
 

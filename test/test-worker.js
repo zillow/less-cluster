@@ -110,15 +110,22 @@ describe("Cluster Worker", function () {
                 }, "Message command invalid");
             });
             it("should execute build command", function () {
-                var build = sinon.stub(instance, "build");
+                var build = sinon.spy(instance, "build");
+                var _build = sinon.stub(instance, "_build");
+
                 var msg = {
-                    cmd: "build"
+                    cmd: "build",
+                    dest: "one.css",
+                    file: "one.less"
                 };
 
                 instance.dispatchMessage(msg);
 
                 build.should.have.been.calledWith(msg);
                 build.restore();
+
+                _build.should.have.been.calledWith(msg.file, msg.dest);
+                _build.restore();
             });
             it("should execute start command", function () {
                 var start = sinon.stub(instance, "start");

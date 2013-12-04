@@ -293,7 +293,11 @@ describe('LessWorker', function () {
         });
 
         describe("build()", function () {
-            it("TODO");
+            it("should pass arguments directly to utility method", function () {
+                sinon.stub(this.instance, "_build");
+                this.instance.build("foo.less", "foo.css");
+                this.instance._build.should.be.calledWith("foo.less", "foo.css");
+            });
         });
     });
 });
