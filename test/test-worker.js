@@ -54,6 +54,7 @@ describe("Cluster Worker", function () {
             // workers listen to events on process
             process.listeners('message').should.have.length.above(0);
         });
+
         it("should pass lifecycle events through to sendMaster", function () {
             var consoleError = sinon.stub(console, "error");
             var sendMaster = sinon.stub(instance, "sendMaster");
@@ -68,6 +69,20 @@ describe("Cluster Worker", function () {
 
             sendMaster.restore();
             consoleError.restore();
+        });
+
+        describe("when destroyed", function () {
+            before(function () {
+                sinon.spy(process, "removeListener");
+                instance.destroy();
+            });
+            after(function () {
+                process.removeListener.restore();
+            });
+
+            it("should remove process.message listener", function () {
+                process.removeListener.should.have.been.calledWith("message", sinon.match.func);
+            });
         });
     });
 

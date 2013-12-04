@@ -38,6 +38,7 @@ describe('LessWorker', function () {
 
         describe("destroy()", function () {
             before(function () {
+                sinon.spy(instance, "emit");
                 sinon.spy(instance, "removeAllListeners");
                 instance.destroy();
             });
@@ -46,6 +47,10 @@ describe('LessWorker', function () {
                 instance.should.have.property('_fileData').that.is.null;
                 instance.should.have.property('_pathCache').that.is.null;
                 instance.should.have.property('_pathRebase').that.is.null;
+            });
+
+            it("should emit 'cleanup' event", function () {
+                instance.emit.should.have.been.calledWith("cleanup");
             });
 
             it("should remove all listeners", function () {
