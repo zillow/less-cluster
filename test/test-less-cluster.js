@@ -419,7 +419,7 @@ function filtersOutput(title, config) {
             };
 
             if (relativePaths && relativePaths.length) {
-                instanceConfig._files = relativePaths.map(function (p) {
+                instanceConfig.files = relativePaths.map(function (p) {
                     return path.join(importsDir, p);
                 });
             }

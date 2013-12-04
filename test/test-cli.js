@@ -494,14 +494,14 @@ function parseAdditionalFiles(title, files) {
         describe(subtitle, function () {
             var topic = cli.parse(args.concat(files), 0);
             it("should populate files array", function () {
-                topic._files.should.be.an('array');
+                topic.files.should.be.an('array');
             });
             it("with two members", function () {
-                topic._files.should.have.length(files.length);
+                topic.files.should.have.length(files.length);
             });
             it("resolved to directory", function () {
                 files.forEach(function (file, i) {
-                    topic._files[i].should.equal(path.resolve(topic.directory, file));
+                    topic.files[i].should.equal(path.resolve(topic.directory, file));
                 });
             });
         });
