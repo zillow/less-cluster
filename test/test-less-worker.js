@@ -36,10 +36,6 @@ describe('LessWorker', function () {
             instance.options.should.deep.equal(LessWorker.defaults);
         });
 
-        it("should override defaults when passed", function () {
-            (new LessWorker({ 'lint': true })).options.should.have.property('lint').that.is.true;
-        });
-
         describe("destroy()", function () {
             before(function () {
                 sinon.spy(instance, "removeAllListeners");
@@ -58,6 +54,30 @@ describe('LessWorker', function () {
 
             it("should restore original less.Parser.importer");
             // this is hard to assert that it actually happened...
+        });
+
+        describe("with options", function () {
+            var fileDataCache = {
+                "foo.less": "foo"
+            };
+
+            before(function () {
+                this.instance = new LessWorker({
+                    fileData: fileDataCache,
+                    lint: true
+                });
+            });
+            after(function () {
+                this.instance.destroy();
+            });
+
+            it("should override defaults when passed", function () {
+                this.instance.options.should.have.property('lint').that.is.true;
+            });
+
+            it("should update cache when fileData passed", function () {
+                this.instance.should.have.property("_fileData").that.deep.equals(fileDataCache);
+            });
         });
     });
 
