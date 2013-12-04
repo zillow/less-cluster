@@ -173,5 +173,41 @@ describe("Cluster Worker", function () {
                 });
             });
         });
+
+        describe("start()", function () {
+            var message = { "cmd": "start", "data": ["foo.less"] };
+
+            beforeEach(function () {
+                this.instance = new ClusterWorker();
+                sinon.stub(this.instance, "emit");
+                sinon.stub(ClusterWorker, "readFiles");
+            });
+            afterEach(function () {
+                ClusterWorker.readFiles.restore();
+                this.instance.destroy();
+                this.instance = null;
+            });
+
+            it("should read all the files specified in message data", function () {
+                this.instance.start(message);
+                ClusterWorker.readFiles.should.have.been.calledWith(message.data, sinon.match.func);
+            });
+
+            it("should emit error event when encountered", function () {
+                var ohNoesError = "oh noes!";
+                ClusterWorker.readFiles.yields(ohNoesError);
+                this.instance.start(message);
+                this.instance.emit.should.have.been.calledWith("error", ohNoesError);
+            });
+
+            it("should emit ready event when successful", function () {
+                var data = {};
+                data["foo.less"] = "foo";
+                ClusterWorker.readFiles.yields(null, data);
+                this.instance.start(message);
+                this.instance.emit.should.have.been.calledWith("ready");
+                this.instance._fileData.should.eql(data);
+            });
+        });
     });
 });

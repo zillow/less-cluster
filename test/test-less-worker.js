@@ -105,38 +105,6 @@ describe('LessWorker', function () {
             this.instance = null;
         });
 
-        describe("start()", function () {
-            var message = { "cmd": "start", "data": [filePath] };
-
-            beforeEach(function () {
-                sinon.stub(this.instance, "emit");
-                sinon.stub(LessWorker, "readFiles");
-            });
-            afterEach(function () {
-                LessWorker.readFiles.restore();
-            });
-
-            it("should read all the files specified in message data", function () {
-                this.instance.start(message);
-                LessWorker.readFiles.should.have.been.calledWith(message.data, sinon.match.func);
-            });
-
-            it("should emit error event when encountered", function () {
-                LessWorker.readFiles.yields(ohNoesError);
-                this.instance.start(message);
-                this.instance.emit.should.have.been.calledWith("error", ohNoesError);
-            });
-
-            it("should emit ready event when successful", function () {
-                var data = {};
-                data[fileName] = fileData;
-                LessWorker.readFiles.yields(null, data);
-                this.instance.start(message);
-                this.instance.emit.should.have.been.calledWith("ready");
-                this.instance._fileData.should.eql(data);
-            });
-        });
-
         describe("doneWrote()", function () {
             beforeEach(function () {
                 sinon.stub(this.instance, "emit");
