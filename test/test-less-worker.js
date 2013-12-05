@@ -68,9 +68,8 @@ describe('LessWorker', function () {
 
             before(function () {
                 this.instance = new LessWorker({
-                    fileData: fileDataCache,
                     lint: true
-                });
+                }, fileDataCache);
             });
             after(function () {
                 this.instance.destroy();
@@ -81,7 +80,11 @@ describe('LessWorker', function () {
             });
 
             it("should update cache when fileData passed", function () {
-                this.instance.should.have.property("_fileData").that.deep.equals(fileDataCache);
+                this.instance.should.have.property("_fileData").that.equals(fileDataCache);
+
+                // the object stored in _fileData is literally the same object passed in
+                fileDataCache.bar = "bar";
+                this.instance._fileData.should.equal(fileDataCache);
             });
         });
     });
