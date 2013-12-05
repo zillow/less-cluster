@@ -5,6 +5,7 @@ Tests for the worker
 var fs = require('graceful-fs');
 var path = require('path');
 var less = require('less');
+var rimraf = require('rimraf');
 var LessWorker = require('../lib/less-worker');
 
 describe('LessWorker', function () {
@@ -99,9 +100,15 @@ describe('LessWorker', function () {
         var parentFilePath  = path.resolve(__dirname, "fixtures/imports/base.less");
 
         var ohNoesError = "oh noes!";
+        var outputdir = path.resolve(__dirname, "output");
+
+        // simulating --include-path arguments
+        var envPaths = [path.dirname(filePath)];
 
         beforeEach(function () {
-            this.instance = new LessWorker();
+            this.instance = new LessWorker({
+                outputdir: outputdir
+            });
         });
         afterEach(function () {
             this.instance.destroy();
@@ -208,9 +215,6 @@ describe('LessWorker', function () {
             });
 
             describe("when cache is cold", function () {
-                // simulating --include-path arguments
-                var envPaths = [path.dirname(filePath)];
-
                 beforeEach(function () {
                     fs.existsSync.withArgs(filePath).returns(true);
                     fs.existsSync.withArgs(childImportPath).returns(true);
@@ -296,10 +300,103 @@ describe('LessWorker', function () {
         });
 
         describe("build()", function () {
+            var expectedFilePath = path.resolve(__dirname, "fixtures", "output", "base.css");
+            var compiledFilePath = path.resolve(outputdir, "base.css");
+
+            before(function (done) {
+                // read file contents into context variables
+                var test = this;
+                rimraf(outputdir, function () {
+                    fs.readFile(expectedFilePath, "utf8", function (err, data) {
+                        test.expectedContent = data;
+                        fs.readFile(parentFilePath, "utf8", function (err, data) {
+                            test.parentContent = data;
+                            done();
+                        });
+                    });
+                });
+            });
+            beforeEach(function () {
+                // populate instance file cache
+                this.instance._fileCache = {};
+                this.instance._fileCache[parentFilePath] = this.parentContent;
+            });
+
             it("should pass arguments directly to utility method", function () {
                 sinon.stub(this.instance, "_build");
                 this.instance.build("foo.less", "foo.css");
                 this.instance._build.should.be.calledWith("foo.less", "foo.css");
+            });
+
+            describe("failure", function () {
+                beforeEach(function () {
+                    sinon.stub(less, "writeError");
+                    sinon.stub(console, "error");
+                });
+                afterEach(function () {
+                    less.writeError.restore();
+                    console.error.restore();
+                });
+
+                it("should emit error when imported file not found", function (done) {
+                    this.instance.once("error", function (err) {
+                        should.exist(err);
+
+                        err.should.have.property("type", "Syntax");
+                        err.should.have.property("message", "File not found: undefined");
+
+                        less.writeError.should.have.been.calledWith(err, this.options);
+
+                        done();
+                    });
+
+                    this.instance.build(parentFilePath, compiledFilePath);
+                });
+
+                it("should emit error when tree.toCSS fails", function (done) {
+                    // provide correct import paths
+                    this.instance.options.paths = envPaths;
+
+                    // we can't effectively mock tree.toCSS, so let's pretend
+                    sinon.stub(this.instance, "writeOutput").throws({ type: "Fake" });
+
+                    this.instance.once("error", function (err) {
+                        should.exist(err);
+
+                        err.should.have.property("type", "Fake");
+
+                        done();
+                    });
+
+                    this.instance.build(parentFilePath, compiledFilePath);
+                });
+            });
+
+            describe("success", function () {
+                beforeEach(function () {
+                    // provide correct import paths
+                    this.instance.options.paths = envPaths;
+                });
+
+                it("should match compiled output", function (done) {
+                    var test = this;
+                    sinon.stub(console, "log");
+
+                    this.instance.once("error", done);
+                    this.instance.once("drain", function (fileName) {
+                        should.exist(fileName);
+                        fileName.should.equal(compiledFilePath);
+                        fs.readFile(fileName, "utf8", function (err, data) {
+                            should.exist(data);
+                            data.should.equal(test.expectedContent);
+                            console.log.should.have.been.calledWith("compiled test/output/base.css");
+                            console.log.restore();
+                            done();
+                        });
+                    });
+
+                    this.instance.build(parentFilePath, compiledFilePath);
+                });
             });
         });
     });

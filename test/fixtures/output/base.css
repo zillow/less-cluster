@@ -1,0 +1,21 @@
+@media screen and (max-width: 400px) {
+  #simple {
+    color: blue;
+  }
+  .child {
+    color: #ff3333;
+  }
+  .nested #fancy {
+    color-fnparsed: #0000ff;
+    color-variable: #ff0000;
+  }
+  .parent {
+    color: #cc0000;
+  }
+}
+#external {
+  color: red;
+}
+#a {
+  color: #0000ff;
+}
