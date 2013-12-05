@@ -93,7 +93,7 @@ describe("LessCluster", function () {
         it("should setup private caches", function () {
             instance.should.have.ownProperty('_parents',  {});
             instance.should.have.ownProperty('_children', {});
-            instance.should.have.ownProperty('_fileData', {});
+            instance.should.have.ownProperty('_fileCache', {});
         });
     });
 

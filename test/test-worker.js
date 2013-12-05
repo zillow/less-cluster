@@ -213,7 +213,7 @@ describe("Cluster Worker", function () {
                 ClusterWorker.readFiles.yields(null, data);
                 this.instance.start(message);
                 this.instance.emit.should.have.been.calledWith("ready");
-                this.instance._fileData.should.eql(data);
+                this.instance._fileCache.should.eql(data);
             });
         });
     });

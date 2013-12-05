@@ -27,7 +27,7 @@ describe('LessWorker', function () {
         });
 
         it("should create private caches as empty objects", function () {
-            instance.should.have.property('_fileData').that.deep.equals({});
+            instance.should.have.property('_fileCache').that.deep.equals({});
             instance.should.have.property('_pathCache').that.deep.equals({});
             instance.should.have.property('_pathRebase').that.deep.equals({});
         });
@@ -44,7 +44,7 @@ describe('LessWorker', function () {
             });
 
             it("should nullify private caches", function () {
-                instance.should.have.property('_fileData').that.is.null;
+                instance.should.have.property('_fileCache').that.is.null;
                 instance.should.have.property('_pathCache').that.is.null;
                 instance.should.have.property('_pathRebase').that.is.null;
             });
@@ -80,11 +80,11 @@ describe('LessWorker', function () {
             });
 
             it("should update cache when fileData passed", function () {
-                this.instance.should.have.property("_fileData").that.equals(fileDataCache);
+                this.instance.should.have.property("_fileCache").that.equals(fileDataCache);
 
-                // the object stored in _fileData is literally the same object passed in
+                // the object stored in _fileCache is literally the same object passed in
                 fileDataCache.bar = "bar";
-                this.instance._fileData.should.equal(fileDataCache);
+                this.instance._fileCache.should.equal(fileDataCache);
             });
         });
     });
