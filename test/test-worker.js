@@ -25,7 +25,7 @@ describe("Cluster Worker", function () {
 
         it("should not overwrite log prefix", function () {
             var instance = new ClusterWorker();
-            instance.should.have.property("_logPrefix", "wrapper");
+            instance.should.have.property("_logPrefix", "worker");
         });
 
         describe("when cluster.isWorker", function () {
