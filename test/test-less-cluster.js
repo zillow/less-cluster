@@ -2,6 +2,7 @@
 /**
 Tests for the main class
 **/
+var fs = require('fs');
 var path = require('path');
 
 var EventEmitter = require('events').EventEmitter;
@@ -272,6 +273,47 @@ describe("LessCluster", function () {
                     addImportsDir("themes/fancy.less"),
                     addImportsDir("themes/simple.less")
                 ]);
+            });
+        });
+
+        describe("variations", function () {
+            beforeEach(function () {
+                this.instance = new LessCluster({
+                    "directory": importsDir
+                });
+            });
+            afterEach(function () {
+                this.instance = null;
+            });
+
+            it("should allow callback only", function (done) {
+                this.instance.collect(done);
+            });
+
+            it("should allow accept directory override", function (done) {
+                this.instance.collect(includeDir, function (err, data) {
+                    should.exist(data);
+                    data.should.have.property(path.join(includeDir, "a.less"));
+                    data.should.have.property(path.join(includeDir, "b.less"));
+                    done();
+                });
+            });
+
+            it("should allow call with no arguments", function (done) {
+                sinon.stub(this.instance, "_finishCollect", done);
+                this.instance.collect();
+            });
+
+            it("should abort glob if error emitted", function (done) {
+                sinon.stub(fs, "readdir");
+
+                // yieldsAsync() necessary to pass through internal process.nextTick
+                fs.readdir.yieldsAsync({ code: "WTF" });
+
+                this.instance.collect(function (err) {
+                    fs.readdir.restore();
+                    done();
+                });
             });
         });
     });
