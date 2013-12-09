@@ -260,8 +260,6 @@ describe("LessCluster", function () {
             instance._isNotCSS('foo/bar.less').should.be.true;
             instance._isNotCSS('baz/qux.css').should.be.false;
         });
-        it("_parseImports()");
-        it("_finishCollect()");
 
         describe("when executed", function () {
             var cb = {};
@@ -322,15 +320,34 @@ describe("LessCluster", function () {
                 this.instance.collect();
             });
 
-            it("should abort glob if error emitted", function (done) {
-                sinon.stub(fs, "readdir");
-
-                // yieldsAsync() necessary to pass through internal process.nextTick
-                fs.readdir.yieldsAsync({ code: "WTF" });
-
-                this.instance.collect(function (err) {
+            describe("with errors", function () {
+                beforeEach(function () {
+                    // yieldsAsync() necessary to pass through internal process.nextTick
+                    sinon.stub(fs, "readdir").yieldsAsync({ code: "WTF" });
+                });
+                afterEach(function () {
                     fs.readdir.restore();
-                    done();
+                });
+
+                it("should abort glob if error emitted", function (done) {
+                    this.instance.collect(function (err) {
+                        should.exist(err);
+                        err.should.have.property("code", "WTF");
+                        done();
+                    });
+                });
+
+                it("should not swallow error in default callback", function (done) {
+                    var defaultCB = sinon.spy(this.instance, "_finishCollect");
+
+                    this.instance.on("error", function (err) {
+                        defaultCB.should.have.been.calledWith(err);
+                        should.exist(err);
+                        err.should.have.property("code", "WTF");
+                        done();
+                    });
+
+                    this.instance.collect();
                 });
             });
         });
