@@ -11,7 +11,7 @@ if (options && options.argv.original.length) {
         cli.version();
     } else {
         try {
-            require('../').Master(options).run();
+            require('../').Master(options);
         } catch (ex) {
             cli.usage();
             console.log(ex);

@@ -67,18 +67,28 @@ describe("LessCluster", function () {
         it("should instantiate without 'new'", function () {
             /*jshint newcap: false */
             var instance = LessCluster();
+            instance.removeAllListeners("run");
             instance.should.be.an.instanceof(LessCluster);
         });
     });
 
     describe("instance", function () {
         var instance;
-        before(function () {
+        before(function (done) {
+            sinon.spy(process, "nextTick");
             instance = new LessCluster();
+            instance.removeAllListeners("run");
+            instance.on("run", done);
+        });
+        after(function () {
+            process.nextTick.restore();
         });
 
         it("should instantiate safely with no config", function () {
             should.exist(instance);
+        });
+        it("should emit 'run' event on nextTick", function () {
+            process.nextTick.should.have.been.calledWith(sinon.match.func);
         });
         it("should inherit EventEmitter", function () {
             instance.should.be.an.instanceof(EventEmitter);
@@ -100,7 +110,10 @@ describe("LessCluster", function () {
 
     describe("run()", function () {
         beforeEach(function () {
-            this.instance = new LessCluster().run();
+            // normally called on nextTick, separated here for clarity
+            this.instance = new LessCluster();
+            this.instance.removeAllListeners("run");
+            this.instance.run();
         });
         afterEach(function () {
             this.instance = null;
@@ -116,13 +129,15 @@ describe("LessCluster", function () {
     });
 
     describe("destroy()", function () {
-        beforeEach(function () {
-            this.instance = new LessCluster().run();
+        beforeEach(function (done) {
+            var test = this;
+            test.instance = new LessCluster(function () {
+                sinon.stub(test.instance, "removeAllListeners");
+                sinon.stub(test.instance.worker, "destroy");
 
-            sinon.stub(this.instance, "removeAllListeners");
-            sinon.stub(this.instance.worker, "destroy");
-
-            this.instance.destroy();
+                test.instance.destroy();
+                done();
+            });
         });
         afterEach(function () {
             this.instance = null;
@@ -139,7 +154,7 @@ describe("LessCluster", function () {
 
     describe("getNextFile()", function () {
         beforeEach(function () {
-            this.instance = new LessCluster();
+            this.instance = getSafeInstance();
         });
         afterEach(function () {
             this.instance = null;
@@ -166,7 +181,7 @@ describe("LessCluster", function () {
 
     describe("onDrain()", function () {
         beforeEach(function () {
-            this.instance = new LessCluster();
+            this.instance = getSafeInstance();
 
             sinon.stub(this.instance, "getNextFile");
         });
@@ -194,9 +209,12 @@ describe("LessCluster", function () {
     });
 
     describe("buildFile()", function () {
-        beforeEach(function () {
-            this.instance = new LessCluster().run();
-            sinon.stub(this.instance.worker, "build");
+        beforeEach(function (done) {
+            var test = this;
+            test.instance = new LessCluster(function () {
+                sinon.stub(test.instance.worker, "build");
+                done();
+            });
         });
         afterEach(function () {
             this.instance.destroy();
@@ -205,7 +223,7 @@ describe("LessCluster", function () {
 
         it("should not error when worker missing", function () {
             should.not.Throw(function () {
-                new LessCluster().buildFile("foo.less");
+                getSafeInstance().buildFile("foo.less");
             });
         });
 
@@ -224,7 +242,7 @@ describe("LessCluster", function () {
     describe("collect()", function () {
         var instance;
         before(function () {
-            instance = new LessCluster({
+            instance = getSafeInstance({
                 "directory": importsDir
             });
         });
@@ -278,7 +296,7 @@ describe("LessCluster", function () {
 
         describe("variations", function () {
             beforeEach(function () {
-                this.instance = new LessCluster({
+                this.instance = getSafeInstance({
                     "directory": importsDir
                 });
             });
@@ -398,6 +416,13 @@ describe("LessCluster", function () {
     });
 });
 
+// return an instance with 'run' event unhooked
+function getSafeInstance(options) {
+    var instance = new LessCluster(options);
+    instance.removeAllListeners("run");
+    return instance;
+}
+
 function addImportsDir(relativePath) {
     if (Array.isArray(relativePath)) {
         return relativePath.map(addImportsDir);
@@ -463,7 +488,7 @@ function filtersOutput(title, config) {
                 });
             }
 
-            instance = new LessCluster(instanceConfig);
+            instance = getSafeInstance(instanceConfig);
 
             instance.once("start", function (toProcess, toRead) {
                 results.filesToProcess = toProcess;

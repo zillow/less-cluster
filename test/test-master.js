@@ -14,21 +14,23 @@ describe("Cluster Master", function () {
     describe("Lifecycle", function () {
         describe("factory", function () {
             /*jshint newcap: false */
-            var topic = Master();
+            var instance = Master();
+            instance.removeAllListeners("run");
 
             it("should instantiate without 'new'", function () {
-                topic.should.be.instanceof(Master);
+                instance.should.be.instanceof(Master);
             });
         });
 
         describe("instance", function () {
-            var topic = new Master();
+            var instance = new Master();
+            instance.removeAllListeners("run");
 
             it("should instantiate safely with no config", function () {
-                topic.should.be.instanceof(Master);
+                instance.should.be.instanceof(Master);
             });
             it("should inherit LessCluster", function () {
-                topic.should.be.instanceof(LessCluster);
+                instance.should.be.instanceof(LessCluster);
             });
         });
     });
@@ -36,6 +38,7 @@ describe("Cluster Master", function () {
     describe("Method", function () {
         beforeEach(function () {
             this.instance = new Master();
+            this.instance.removeAllListeners("run");
         });
         afterEach(function () {
             this.instance = null;
@@ -288,6 +291,8 @@ describe("Cluster Master", function () {
     describe("Events", function () {
         beforeEach(function () {
             this.instance = new Master();
+            this.instance.removeAllListeners("run");
+
             sinon.stub(this.instance, "forkWorkers");
 
             // spy instance methods to allow execution
@@ -361,6 +366,8 @@ describe("Cluster Master", function () {
     describe("Handler", function () {
         beforeEach(function () {
             this.instance = new Master();
+            this.instance.removeAllListeners("run");
+
             sinon.stub(this.instance, "debug");
         });
         afterEach(function () {
