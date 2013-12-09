@@ -308,7 +308,7 @@ describe("LessCluster", function () {
                 this.instance.collect(done);
             });
 
-            it("should allow accept directory override", function (done) {
+            it("should allow directory override", function (done) {
                 this.instance.collect(includeDir, function (err, data) {
                     should.exist(data);
                     data.should.have.property(path.join(includeDir, "a.less"));
