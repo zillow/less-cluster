@@ -19,11 +19,19 @@ describe("Library Integration", function () {
 
     it("builds files when instantiated", function (done) {
         var instance = new LessCluster({
+            quiet: true,
             paths: [includeDir],
             directory: importsDir,
             outputdir: outputsDir
-        }, function () {
-            // TODO: build stuff
+        });
+
+        instance.on("run", function () {
+            instance.collect();
+        });
+
+        instance.on("finished", function () {
+            // TODO: verify output
+            instance.destroy();
             done();
         });
     });

@@ -87,6 +87,9 @@ describe("LessCluster", function () {
         it("should instantiate safely with no config", function () {
             should.exist(instance);
         });
+        it("should attach listener to 'start' event", function () {
+            instance.listeners("start").should.have.length(1);
+        });
         it("should emit 'run' event on nextTick", function () {
             process.nextTick.should.have.been.calledWith(sinon.match.func);
         });
@@ -204,6 +207,7 @@ describe("LessCluster", function () {
 
             this.instance.onDrain();
 
+            this.instance.should.have.property("running", false);
             this.instance.emit.should.have.been.calledWith("finished");
         });
     });
@@ -350,6 +354,44 @@ describe("LessCluster", function () {
                     this.instance.collect();
                 });
             });
+        });
+    });
+
+    describe("startQueue()", function () {
+        var filesToProcess = ["foo", "bar"];
+        var filesToRead    = ["foo", "bar", "baz", "qux"];
+
+        beforeEach(function (done) {
+            var test = this;
+            this.instance = new LessCluster(function () {
+                sinon.stub(test.instance, "onDrain");
+                sinon.stub(test.instance, "once");
+                done();
+            });
+        });
+        afterEach(function () {
+            this.instance.destroy();
+            this.instance = null;
+        });
+
+        it("should start building files immediately when not already running queue", function () {
+            this.instance.should.not.have.property("running");
+
+            this.instance.emit("start", filesToProcess, filesToRead);
+
+            this.instance.should.have.property("running", true);
+            this.instance.should.have.property("filesToProcess", filesToProcess);
+            this.instance.once.should.not.have.been.called;
+            this.instance.onDrain.should.have.been.calledOnce;
+        });
+
+        it("should wait until next 'finished' event when already running queue", function () {
+            this.instance.running = true;
+
+            this.instance.emit("start", filesToProcess, filesToRead);
+
+            this.instance.once.should.have.been.calledWith("finished", sinon.match.func);
+            this.instance.onDrain.should.not.have.been.called;
         });
     });
 
@@ -506,6 +548,9 @@ function filtersOutput(title, config) {
             }
 
             instance = getSafeInstance(instanceConfig);
+
+            // always stop these instances from starting their queues
+            instance.removeAllListeners("start");
 
             instance.once("start", function (toProcess, toRead) {
                 results.filesToProcess = toProcess;
