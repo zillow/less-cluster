@@ -68,12 +68,12 @@ describe("LessCluster", function () {
 
             options.paths.should.have.members([path.resolve("foo")]);
         });
-        it("should reject invalid options", function () {
+        it("should not overwrite defaults with invalid option values", function () {
             var options = LessCluster.checkArguments({
                 optimization: "foo"
             });
 
-            options.should.not.have.property("optimization");
+            options.should.have.property("optimization", 1);
         });
         it("should merge workerDefaults as well", function () {
             LessCluster.checkArguments().should.include.keys("silent", "verbose", "rootpath");
