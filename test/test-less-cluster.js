@@ -122,6 +122,7 @@ describe("LessCluster", function () {
         beforeEach(function () {
             // normally called on nextTick, separated here for clarity
             this.instance = new LessCluster();
+            sinon.stub(this.instance, "collect");
             this.instance.removeAllListeners("run");
             this.instance.run();
         });
@@ -148,6 +149,7 @@ describe("LessCluster", function () {
                 test.instance.destroy();
                 done();
             });
+            sinon.stub(this.instance, "collect");
         });
         afterEach(function () {
             this.instance = null;
@@ -165,6 +167,7 @@ describe("LessCluster", function () {
     describe("getNextFile()", function () {
         beforeEach(function () {
             this.instance = getSafeInstance();
+            sinon.stub(this.instance, "collect");
         });
         afterEach(function () {
             this.instance = null;
@@ -226,6 +229,7 @@ describe("LessCluster", function () {
                 sinon.stub(test.instance.worker, "build");
                 done();
             });
+            sinon.stub(this.instance, "collect");
         });
         afterEach(function () {
             this.instance.destroy();

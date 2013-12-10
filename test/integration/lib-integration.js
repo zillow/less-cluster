@@ -25,8 +25,8 @@ describe("Library Integration", function () {
             outputdir: outputsDir
         });
 
-        instance.on("run", function () {
-            instance.collect();
+        instance.on("start", function () {
+            // TODO: verify collected data
         });
 
         instance.on("finished", function () {
