@@ -372,6 +372,23 @@ describe('CLI', function () {
                     cli.clean(mix()).should.deep.equal({});
                 });
             });
+            describe("called with second parameter 'true'", function () {
+                it("should not pass options through nopt.clean()", function () {
+                    cli.clean({
+                        optimization: "foo"
+                    }, true).should.deep.equal({
+                        optimization: "foo"
+                    });
+                });
+            });
+            describe("called with unclean object", function () {
+                it("should return cleaned config", function () {
+                    // nopt rejects invalid values
+                    cli.clean({
+                        optimization: "foo"
+                    }).should.deep.equal({});
+                });
+            });
         });
         describe("parse()", function () {
             describe("called with full argv", function () {

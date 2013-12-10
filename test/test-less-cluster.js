@@ -58,7 +58,7 @@ describe("LessCluster", function () {
                 outputdir: 'foo'
             });
 
-            options.outputdir.should.equal('foo');
+            options.outputdir.should.equal(path.resolve("foo"));
             options.outputdir.should.not.equal(options.directory);
         });
         it("should compact paths array", function () {
@@ -66,7 +66,14 @@ describe("LessCluster", function () {
                 paths: [null, "foo"]
             });
 
-            options.paths.should.have.members(["foo"]);
+            options.paths.should.have.members([path.resolve("foo")]);
+        });
+        it("should reject invalid options", function () {
+            var options = LessCluster.checkArguments({
+                optimization: "foo"
+            });
+
+            options.should.not.have.property("optimization");
         });
     });
 
