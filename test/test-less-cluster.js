@@ -368,13 +368,10 @@ describe("LessCluster", function () {
         var filesToProcess = ["foo", "bar"];
         var filesToRead    = ["foo", "bar", "baz", "qux"];
 
-        beforeEach(function (done) {
-            var test = this;
-            this.instance = new LessCluster(function () {
-                sinon.stub(test.instance, "onDrain");
-                sinon.stub(test.instance, "once");
-                done();
-            });
+        beforeEach(function () {
+            this.instance = getSafeInstance();
+            sinon.stub(this.instance, "onDrain");
+            sinon.stub(this.instance, "once");
         });
         afterEach(function () {
             this.instance.destroy();
