@@ -61,6 +61,13 @@ describe("LessCluster", function () {
             options.outputdir.should.equal('foo');
             options.outputdir.should.not.equal(options.directory);
         });
+        it("should compact paths array", function () {
+            var options = LessCluster.checkArguments({
+                paths: [null, "foo"]
+            });
+
+            options.paths.should.have.members(["foo"]);
+        });
     });
 
     describe("factory", function () {
