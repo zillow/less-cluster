@@ -75,6 +75,9 @@ describe("LessCluster", function () {
 
             options.should.not.have.property("optimization");
         });
+        it("should merge workerDefaults as well", function () {
+            LessCluster.checkArguments().should.include.keys("silent", "verbose", "rootpath");
+        });
     });
 
     describe("factory", function () {
