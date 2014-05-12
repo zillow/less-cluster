@@ -444,6 +444,22 @@ describe("Cluster Master", function () {
         });
 
         describe("for process event", function () {
+            // mocha does fancy stuff on SIGINT now,
+            // so remove it before and restore after
+            var mochaSigInt;
+            before(function () {
+                var listeners = process.listeners("SIGINT");
+                if (listeners.length) {
+                    mochaSigInt = listeners.shift();
+                    process.removeListener("SIGINT", mochaSigInt);
+                }
+            });
+            after(function () {
+                if (mochaSigInt) {
+                    process.on("SIGINT", mochaSigInt);
+                }
+            });
+
             beforeEach(function () {
                 sinon.stub(cluster, "disconnect");
                 this.instance._bindProcess();
