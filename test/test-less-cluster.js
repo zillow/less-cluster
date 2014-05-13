@@ -281,9 +281,11 @@ describe("LessCluster", function () {
             instance._getLessExtension('foo/bar.less').should.equal('foo/bar.less');
             instance._getLessExtension('baz/qux').should.equal('baz/qux.less');
         });
-        it("_isNotCSS()", function () {
-            instance._isNotCSS('foo/bar.less').should.be.true;
-            instance._isNotCSS('baz/qux.css').should.be.false;
+        it("_isValidImport()", function () {
+            instance._isValidImport('foo/bar.less').should.be.true;
+            instance._isValidImport('foo/baz', 'inline').should.be.false;
+            instance._isValidImport('foo/qux', 'css').should.be.false;
+            instance._isValidImport('foo/xyz.css').should.be.false;
         });
 
         describe("when executed", function () {

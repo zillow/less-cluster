@@ -58,7 +58,7 @@ describe('LessWorker', function () {
                 instance.removeAllListeners.should.have.been.calledOnce;
             });
 
-            it("should restore original less.Parser.importer");
+            it("should restore original less.Parser.fileLoader");
             // this is hard to assert that it actually happened...
         });
 
