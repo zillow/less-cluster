@@ -308,6 +308,17 @@ describe('CLI', function () {
                         .that.deep.equals(['--urlArgs']);
                 });
             });
+            describe("--sourceMap", function () {
+                it("should be String or null", function () {
+                    knownOpts.should.have.property('sourceMap')
+                        .that.deep.equals([String, null]);
+                });
+                // no shorthand sourceMap
+                it("should be dash-cased --source-map", function () {
+                    shortHands.should.have.property('source-map')
+                        .that.deep.equals(['--sourceMap']);
+                });
+            });
         });
     });
 
@@ -512,6 +523,9 @@ describe('CLI', function () {
             it("should keep --verbose disabled", function () {
                 topic.verbose.should.be.false;
             });
+        });
+        describe("--source-map", function () {
+            it("handles an absurd amount of magic");
         });
     });
 
