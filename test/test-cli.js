@@ -103,7 +103,8 @@ describe('CLI', function () {
                 strictUnits     : false,
                 ieCompat        : true,
                 silent          : false,
-                verbose         : false
+                verbose         : false,
+                urlArgs         : ''
             });
         });
         describe("option", function () {
@@ -294,6 +295,17 @@ describe('CLI', function () {
                 it("should alias --no-strictMath and --no-strictUnits", function () {
                     shortHands.should.have.property('legacy')
                         .that.deep.equals(['--no-strictMath', '--no-strictUnits']);
+                });
+            });
+            describe("--urlArgs", function () {
+                it("should be a String", function () {
+                    knownOpts.should.have.property('urlArgs')
+                        .that.equals(String);
+                });
+                // no shorthand --urlArgs
+                it("should be dash-cased --url-args", function () {
+                    shortHands.should.have.property('url-args')
+                        .that.deep.equals(['--urlArgs']);
                 });
             });
         });
