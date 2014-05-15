@@ -524,6 +524,10 @@ describe('CLI', function () {
                 topic.verbose.should.be.false;
             });
         });
+    });
+
+    describe("SourceMap Chicanery", function () {
+        // the most convoluted CLI options ever
         describe("--source-map", function () {
             it("handles an absurd amount of magic");
         });
